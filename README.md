@@ -1,6 +1,6 @@
-# GEN ERA — SIH26178 Early-Warning Dashboard Demo
+# zenalert — SIH26178 Early-Warning Dashboard Demo
 
-A self-contained, presentation-ready browser prototype derived from the supplied GEN ERA PRD.
+A self-contained, presentation-ready browser prototype for the zenalert environmental early-warning platform.
 
 ## What is included
 
