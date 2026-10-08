@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#EF4444" />
+  
+  <title>ZenAlert | Public Warning System</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* Specific styles for the public high-contrast view */
+    body {
+      background: var(--bg-deepest);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: var(--font-body);
+    }
+    
+    .public-header {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: var(--sp-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .public-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .public-brand-logo { width: 24px; height: 24px; }
+    .public-brand-name {
+      font-family: var(--font-heading);
+      font-weight: var(--weight-bold);
+      font-size: var(--text-base);
+    }
+    
+    .main-container {
+      flex: 1;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: var(--sp-6) var(--sp-4);
+    }
+    
+    /* High contrast alert banner */
+    .alert-banner {
+      background: var(--severity-critical);
+      color: white;
+      border-radius: var(--radius-xl);
+      padding: var(--sp-6);
+      text-align: center;
+      margin-bottom: var(--sp-6);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+      animation: pulseAlert 2s ease-in-out infinite alternate;
+    }
+    @keyframes pulseAlert {
+      0% { box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2); }
+      100% { box-shadow: 0 15px 40px rgba(239, 68, 68, 0.5); }
+    }
+    
+    .alert-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto var(--sp-4);
+      background: rgba(0,0,0,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .alert-icon svg { width: 32px; height: 32px; }
+    
+    .alert-title {
+      font-family: var(--font-heading);
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-bold);
+      margin-bottom: var(--sp-2);
+      letter-spacing: -0.02em;
+    }
+    .alert-zone {
+      font-size: var(--text-md);
+      opacity: 0.9;
+    }
+    
+    .info-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      margin-bottom: var(--sp-4);
+    }
+    .info-header {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semi);
+      color: var(--text-primary);
+      margin-bottom: var(--sp-3);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+    .info-header svg { width: 18px; height: 18px; color: var(--accent); }
+    
+    .instruction-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+    }
+    .instruction-item {
+      display: flex;
+      gap: var(--sp-3);
+      padding-bottom: var(--sp-3);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .instruction-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .instruction-num {
+      width: 24px;
+      height: 24px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-bold);
+      flex-shrink: 0;
+    }
+    .instruction-text {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+    
+    .timestamp {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--sp-8);
+    }
+  </style>
+</head>
+<body class="grain topo-bg">
+
+  <header class="public-header">
+    <a href="/" class="public-brand">
+      <img src="assets/logo-mark.svg" alt="" class="public-brand-logo" />
+      <span class="public-brand-name">ZenAlert Public System</span>
+    </a>
+    <button class="nav-lang-toggle" onclick="toggleLang()" style="border: 1px solid var(--border-default); background: transparent; color: var(--text-secondary); padding: 4px 10px; border-radius: var(--radius-full); font-size: 12px; cursor:pointer;" id="btnLang">
+      हिं
+    </button>
+  </header>
+
+  <div class="main-container">
+    
+    <div class="alert-banner">
+      <div class="alert-icon">
+        <i data-lucide="flame"></i>
+      </div>
+      <h1 class="alert-title" id="t-title">CRITICAL: Forest Fire</h1>
+      <div class="alert-zone" id="t-zone">Area: Bhowali Forest Edge</div>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-header">
+        <i data-lucide="alert-circle"></i>
+        <span id="t-status">Verified Status</span>
+      </div>
+      <p class="text-sm text-secondary" id="t-desc">
+        A forest fire has been verified by the ZenAlert edge network. Emergency response teams have been dispatched. Do not proceed towards the affected zone.
+      </p>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-header">
+        <i data-lucide="shield"></i>
+        <span id="t-instructions">Safety Instructions</span>
+      </div>
+      <ul class="instruction-list">
+        <li class="instruction-item">
+          <div class="instruction-num">1</div>
+          <div class="instruction-text" id="t-i1">Evacuate the immediate boundary area if smoke is visible.</div>
+        </li>
+        <li class="instruction-item">
+          <div class="instruction-num">2</div>
+          <div class="instruction-text" id="t-i2">Keep windows and doors closed to avoid respiratory issues from PM2.5 particulate matter.</div>
+        </li>
+        <li class="instruction-item">
+          <div class="instruction-num">3</div>
+          <div class="instruction-text" id="t-i3">Keep local roads clear for forest department vehicles.</div>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="timestamp">
+      Alert Issued: <span id="timeString"></span>
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+    document.getElementById('timeString').textContent = new Date().toLocaleString();
+    
+    let isEn = true;
+    function toggleLang() {
+      isEn = !isEn;
+      document.getElementById('btnLang').textContent = isEn ? 'हिं' : 'EN';
+      
+      if (isEn) {
+        document.getElementById('t-title').textContent = 'CRITICAL: Forest Fire';
+        document.getElementById('t-zone').textContent = 'Area: Bhowali Forest Edge';
+        document.getElementById('t-status').textContent = 'Verified Status';
+        document.getElementById('t-desc').textContent = 'A forest fire has been verified by the ZenAlert edge network. Emergency response teams have been dispatched. Do not proceed towards the affected zone.';
+        document.getElementById('t-instructions').textContent = 'Safety Instructions';
+        document.getElementById('t-i1').textContent = 'Evacuate the immediate boundary area if smoke is visible.';
+        document.getElementById('t-i2').textContent = 'Keep windows and doors closed to avoid respiratory issues from PM2.5 particulate matter.';
+        document.getElementById('t-i3').textContent = 'Keep local roads clear for forest department vehicles.';
+      } else {
+        document.getElementById('t-title').textContent = 'गंभीर: जंगल में आग';
+        document.getElementById('t-zone').textContent = 'क्षेत्र: भवाली जंगल के किनारे';
+        document.getElementById('t-status').textContent = 'सत्यापित स्थिति';
+        document.getElementById('t-desc').textContent = 'जेनअलर्ट एज नेटवर्क द्वारा जंगल की आग की पुष्टि की गई है। आपातकालीन प्रतिक्रिया दल भेजे गए हैं। प्रभावित क्षेत्र की ओर न बढ़ें।';
+        document.getElementById('t-instructions').textContent = 'सुरक्षा निर्देश';
+        document.getElementById('t-i1').textContent = 'धुआं दिखाई देने पर तत्काल सीमा क्षेत्र खाली कर दें।';
+        document.getElementById('t-i2').textContent = 'PM2.5 कणों से होने वाली सांस की समस्याओं से बचने के लिए खिड़कियां और दरवाजे बंद रखें।';
+        document.getElementById('t-i3').textContent = 'वन विभाग के वाहनों के लिए स्थानीय सड़कें खाली रखें।';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="ZenAlert - Resilient Environmental AI. Early-warning platform for forest fires, gas leaks and air pollution." />
+  
+  <title>ZenAlert | Resilient Environmental AI</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/utils.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
+  
+  <!-- App JS -->
+  <script type="module" src="js/landing.js"></script>
+  <script type="module">
+    import { SensorNode3D } from './js/3d-model.js';
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const viewer = new SensorNode3D('hero3DContainer', { autoRotate: true });
+      
+      // Controls
+      document.getElementById('btnResetView')?.addEventListener('click', () => {
+        viewer.controls.reset();
+        viewer.camera.position.set(10, 8, 15);
+      });
+      document.getElementById('btnRotate')?.addEventListener('click', (e) => {
+        viewer.controls.autoRotate = !viewer.controls.autoRotate;
+        e.target.classList.toggle('active');
+      });
+      document.getElementById('btnExplode')?.addEventListener('click', (e) => {
+        viewer.toggleExploded();
+        e.target.classList.toggle('active');
+        e.target.textContent = viewer.isExploded ? 'NORMAL VIEW' : 'EXPLODED VIEW';
+      });
+
+      // Component selection logic
+      const componentTiles = document.querySelectorAll('.component-tile');
+      const infoPanel = document.getElementById('componentInfoPanel');
+
+      const componentsData = {
+        'ESP32-S3': { role: 'Field Controller', res: 'Reads sensor values, structures data, sends via LoRa', iface: 'GPIO/ADC/UART', status: 'ONLINE' },
+        'IMX219 Camera': { role: 'Visual Verification', res: 'Captures frames when triggered for edge inference', iface: 'CSI', status: 'READY' },
+        'MQ135 Gas Sensor': { role: 'Air Quality', res: 'Detects CO, Ammonia, Benzene, Alcohol, smoke', iface: 'Analog', status: 'ACTIVE' },
+        'MQ2 Smoke Sensor': { role: 'Smoke/Combustible', res: 'High sensitivity to LPG, Propane, Hydrogen', iface: 'Analog', status: 'ACTIVE' },
+        'DHT11 Temp/Hum': { role: 'Climate Context', res: 'Provides temperature and humidity baseline', iface: 'Digital', status: 'ACTIVE' },
+        'GP2Y1010 PM2.5': { role: 'Particulate Proxy', res: 'Detects fine dust and smoke particulates', iface: 'Analog/Digital', status: 'ACTIVE' },
+        'LoRa Antenna': { role: 'Long-Range Comms', res: 'Transmits telemetry to Jetson Gateway', iface: 'SPI', status: 'CONNECTED' },
+        'Solar Panel': { role: 'Energy Harvesting', res: 'Powers the node indefinitely in daylight', iface: 'DC', status: 'GENERATING' },
+        'Battery 18650': { role: 'Energy Storage', res: 'Provides power during night and heavy load', iface: 'DC', status: 'DISCHARGING' },
+        'Enclosure': { role: 'Protection', res: 'Weatherproof IP65 outdoor casing', iface: 'Mechanical', status: 'SEALED' }
+      };
+
+      const selectComponent = (name) => {
+        viewer.highlightComponent(name);
+        componentTiles.forEach(t => t.classList.remove('active', 'border-accent'));
+        
+        const tile = Array.from(componentTiles).find(t => t.dataset.comp === name);
+        if (tile) tile.classList.add('active', 'border-accent');
+        
+        if (name && componentsData[name]) {
+          const data = componentsData[name];
+          infoPanel.innerHTML = `
+            <div class="text-xs text-accent mb-1 font-mono uppercase tracking-widest">Selected Component</div>
+            <h4 class="text-lg font-semi mb-4">${name}</h4>
+            <div class="grid grid-cols-1 gap-3 text-sm">
+              <div><span class="text-muted block text-xs">ROLE</span> ${data.role}</div>
+              <div><span class="text-muted block text-xs">RESPONSIBILITIES</span> ${data.res}</div>
+              <div><span class="text-muted block text-xs">INTERFACE</span> <span class="mono">${data.iface}</span></div>
+              <div><span class="text-muted block text-xs">STATUS</span> <span class="text-normal font-semi">${data.status}</span></div>
+            </div>
+          `;
+          infoPanel.style.display = 'block';
+        } else {
+          infoPanel.style.display = 'none';
+        }
+      };
+
+      viewer.onComponentClick = selectComponent;
+
+      componentTiles.forEach(tile => {
+        tile.addEventListener('click', () => selectComponent(tile.dataset.comp));
+      });
+    });
+  </script>
+</head>
+<body class="topo-bg grain">
+
+  <!-- Loader -->
+  <div class="loader">
+    <div class="loader-logo">
+      <img src="assets/logo-mark.svg" alt="ZenAlert pulse" />
+    </div>
+    <div class="loader-text">Initializing Systems</div>
+  </div>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="landing-nav" style="border-bottom: 1px solid var(--border-default); background: var(--bg-glass-strong);">
+    <a href="/" class="nav-brand">
+      <img src="assets/logo-mark.svg" alt="ZenAlert Logo" class="nav-brand-logo" />
+      <span class="nav-brand-name">ZenAlert</span>
+    </a>
+    
+    <ul class="nav-links">
+      <li><a href="#hardware">Hardware</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#hazards">Hazards</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button class="nav-lang-toggle" aria-label="Toggle language">EN | हिं</button>
+      <a href="app.html" class="nav-cta">
+        Open dashboard
+        <i data-lucide="arrow-right"></i>
+      </a>
+    </div>
+  </nav>
+
+  <main id="main">
+    
+    <!-- Hero / Hardware Explorer Section -->
+    <section class="min-h-screen pt-24 pb-12 flex flex-col relative" id="hardware">
+      <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(94,234,198,0.05) 0%, transparent 60%);"></div>
+      
+      <div class="text-center z-10 px-6 mb-8 reveal">
+        <div class="text-xs text-accent uppercase tracking-widest font-mono mb-4">GEN ERA</div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-semi tracking-tight mb-6">
+          AI-POWERED LOCALIZED<br/>EARLY-WARNING SYSTEM
+        </h1>
+        <p class="text-xl text-secondary max-w-2xl mx-auto mb-6">
+          Sense. Identify. Verify. Locate. <span class="text-primary font-medium">Alert Earlier.</span>
+        </p>
+        <div class="flex items-center justify-center gap-4">
+          <div class="flex items-center gap-2 text-sm bg-surface px-4 py-2 rounded-full border border-default"><span class="status-dot green pulse"></span> ACTIVE NODES: <strong class="mono">14</strong></div>
+          <div class="flex items-center gap-2 text-sm bg-surface px-4 py-2 rounded-full border border-default"><i data-lucide="cpu" class="w-4 h-4 text-accent"></i> EDGE AI: <strong class="mono">ONLINE</strong></div>
+        </div>
+      </div>
+
+      <!-- 3D Prototype Viewer -->
+      <div class="flex-1 w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+        
+        <!-- Left: Components Explorer -->
+        <div class="lg:col-span-3 flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+          <div class="text-xs uppercase tracking-widest text-muted font-semi mb-2">Prototype Explorer</div>
+          
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="ESP32-S3">
+            <div class="font-mono text-xs text-accent mb-1">01</div>
+            <div class="font-semi text-sm text-primary">ESP32-S3 Controller</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="IMX219 Camera">
+            <div class="font-mono text-xs text-accent mb-1">02</div>
+            <div class="font-semi text-sm text-primary">IMX219 Camera Module</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="MQ135 Gas Sensor">
+            <div class="font-mono text-xs text-accent mb-1">03</div>
+            <div class="font-semi text-sm text-primary">MQ135 Gas Sensor</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="MQ2 Smoke Sensor">
+            <div class="font-mono text-xs text-accent mb-1">04</div>
+            <div class="font-semi text-sm text-primary">MQ2 Smoke Sensor</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="GP2Y1010 PM2.5">
+            <div class="font-mono text-xs text-accent mb-1">05</div>
+            <div class="font-semi text-sm text-primary">GP2Y1010 PM2.5</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="LoRa Antenna">
+            <div class="font-mono text-xs text-accent mb-1">06</div>
+            <div class="font-semi text-sm text-primary">SX1278 LoRa Module</div>
+          </button>
+          <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="Solar Panel">
+            <div class="font-mono text-xs text-accent mb-1">07</div>
+            <div class="font-semi text-sm text-primary">Solar Power System</div>
+          </button>
+        </div>
+
+        <!-- Center: 3D Canvas -->
+        <div class="lg:col-span-6 relative bg-elevated border border-default rounded-2xl overflow-hidden shadow-2xl h-[600px]">
+          <!-- Top controls -->
+          <div class="absolute top-4 left-4 right-4 flex justify-between z-10 pointer-events-none">
+            <div class="flex gap-2 pointer-events-auto">
+              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors" id="btnResetView">RESET</button>
+              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors active:bg-accent active:text-inverse" id="btnRotate">ROTATE</button>
+              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors" id="btnExplode">EXPLODED VIEW</button>
+            </div>
+            <div class="flex gap-2 pointer-events-auto">
+              <button class="px-3 py-1 bg-accent text-inverse font-semi rounded text-xs font-mono">NODE</button>
+              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono opacity-50 cursor-not-allowed">GATEWAY</button>
+            </div>
+          </div>
+
+          <!-- Telemetry Overlays -->
+          <div class="absolute top-20 right-4 bg-surface/80 backdrop-blur border border-default p-3 rounded-lg text-xs font-mono text-primary pointer-events-none z-10">
+            <div class="text-[10px] text-muted mb-1 uppercase">Live Node Telemetry</div>
+            <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>TEMP</span> <span>24.8 °C</span></div>
+            <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>HUM</span> <span>61%</span></div>
+            <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>PM2.5</span> <span>38 µg/m³</span></div>
+            <div class="flex justify-between gap-4 py-1 border-b border-subtle text-accent"><span>BATT</span> <span>87%</span></div>
+            <div class="flex justify-between gap-4 py-1 text-normal"><span>LORA</span> <span>CONN</span></div>
+          </div>
+
+          <!-- 3D Container -->
+          <div id="hero3DContainer" class="w-full h-full cursor-move"></div>
+        </div>
+
+        <!-- Right: Dynamic Component Info -->
+        <div class="lg:col-span-3">
+          <div id="componentInfoPanel" class="p-6 bg-surface border border-default rounded-2xl h-full shadow-lg" style="display:none;">
+            <!-- Content injected by JS -->
+          </div>
+          <div id="componentInfoFallback" class="p-6 bg-transparent border border-dashed border-subtle rounded-2xl h-full flex items-center justify-center text-muted text-sm text-center" style="display:flex;">
+            Select a component or click the 3D model to inspect its architecture.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Architecture & Data Flow -->
+    <section id="architecture" class="landing-section bg-elevated border-y border-default">
+      <div class="max-w-[1200px] mx-auto px-6 py-20 reveal">
+        <div class="text-center mb-16">
+          <div class="section-eyebrow">System Architecture</div>
+          <h2 class="section-heading">Offline-First Operational Intelligence</h2>
+          <p class="section-description mx-auto">
+            ZenAlert operates independently of cloud connectivity. Local intelligence guarantees that even during total grid failure, field teams receive life-saving alerts.
+          </p>
+        </div>
+
+        <!-- Animated Data Flow -->
+        <div class="arch-flow">
+          <div class="arch-flow-node">
+            <div class="arch-icon"><i data-lucide="radio"></i></div>
+            <div class="arch-title">SENSORS</div>
+            <div class="arch-desc text-xs text-muted">Continuous field telemetry</div>
+          </div>
+          <div class="arch-line"><div class="arch-particle"></div></div>
+          
+          <div class="arch-flow-node">
+            <div class="arch-icon"><i data-lucide="cpu"></i></div>
+            <div class="arch-title">ESP32-S3</div>
+            <div class="arch-desc text-xs text-muted">Sensor aggregation</div>
+          </div>
+          <div class="arch-line"><div class="arch-particle" style="animation-delay: 0.5s"></div></div>
+          
+          <div class="arch-flow-node" style="border-color: var(--accent);">
+            <div class="arch-icon text-accent"><i data-lucide="box"></i></div>
+            <div class="arch-title">JETSON EDGE</div>
+            <div class="arch-desc text-xs text-muted">Vision AI & Routing</div>
+          </div>
+          <div class="arch-line"><div class="arch-particle" style="animation-delay: 1s"></div></div>
+          
+          <div class="arch-flow-node">
+            <div class="arch-icon"><i data-lucide="map"></i></div>
+            <div class="arch-title">GIS SYSTEM</div>
+            <div class="arch-desc text-xs text-muted">Live mapping backend</div>
+          </div>
+          <div class="arch-line"><div class="arch-particle" style="animation-delay: 1.5s"></div></div>
+          
+          <div class="arch-flow-node" style="border-color: var(--severity-critical);">
+            <div class="arch-icon text-critical"><i data-lucide="bell-ring"></i></div>
+            <div class="arch-title">ALERT</div>
+            <div class="arch-desc text-xs text-muted">Siren / SMS Broadcast</div>
+          </div>
+        </div>
+
+        <style>
+          .arch-flow { display: flex; align-items: center; justify-content: space-between; overflow-x: auto; padding: 2rem 0; }
+          .arch-flow-node { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 140px; height: 140px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 50%; z-index: 2; position: relative; }
+          .arch-icon { margin-bottom: 8px; }
+          .arch-title { font-family: var(--font-mono); font-size: 11px; font-weight: var(--weight-bold); }
+          .arch-line { flex: 1; height: 2px; background: var(--border-strong); position: relative; min-width: 40px; z-index: 1; }
+          .arch-particle { position: absolute; top: -3px; left: 0; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: flowParticle 2s linear infinite; }
+          @keyframes flowParticle { 0% { left: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+          
+          @media (max-width: 768px) {
+            .arch-flow { flex-direction: column; gap: 2rem; }
+            .arch-line { width: 2px; height: 40px; min-width: auto; }
+            .arch-particle { top: 0; left: -3px; animation: flowParticleVert 2s linear infinite; }
+            @keyframes flowParticleVert { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+          }
+        </style>
+
+        <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 bg-surface border border-default rounded-2xl flex items-start gap-4">
+            <div class="p-3 bg-bg-elevated rounded-lg"><i data-lucide="wifi-off" class="text-accent"></i></div>
+            <div>
+              <h4 class="text-lg font-semi mb-2">Offline-First Operation</h4>
+              <p class="text-sm text-secondary">In the event of a telecom blackout, the local LoRa mesh and edge AI continue analyzing threats and triggering localized sirens.</p>
+            </div>
+          </div>
+          <div class="p-6 bg-surface border border-default rounded-2xl flex items-start gap-4">
+            <div class="p-3 bg-bg-elevated rounded-lg"><i data-lucide="battery-charging" class="text-accent"></i></div>
+            <div>
+              <h4 class="text-lg font-semi mb-2">Solar Power Management</h4>
+              <p class="text-sm text-secondary">Solar panels and MPPT charge controllers ensure continuous operation, dynamically scaling power draw based on risk levels.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hazard Modules -->
+    <section id="hazards" class="landing-section py-20">
+      <div class="max-w-[1200px] mx-auto px-6 reveal">
+        <div class="text-center mb-16">
+          <div class="section-eyebrow">Threat Intelligence</div>
+          <h2 class="section-heading">Multi-Threat Environmental Awareness</h2>
+        </div>
+        
+        <div class="hazard-grid">
+          <!-- Fire -->
+          <div class="hazard-card fire p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-b from-severity-critical/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="hazard-icon text-critical mb-4"><i data-lucide="flame" class="w-8 h-8"></i></div>
+            <h3 class="hazard-title text-xl font-semi mb-2">Forest Fire</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6">
+              Early detection of localized combustion and smoke plumes before uncontrolled spread, utilizing thermal proxies and visual AI.
+            </p>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
+              <div>
+                <div class="text-xl font-mono font-bold">0.94</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">YOLO Confidence</div>
+              </div>
+              <div>
+                <div class="text-xl font-mono font-bold text-critical">> 800</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">MQ2 Trigger</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Gas -->
+          <div class="hazard-card gas p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-b from-severity-watch/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="hazard-icon text-watch mb-4"><i data-lucide="wind" class="w-8 h-8"></i></div>
+            <h3 class="hazard-title text-xl font-semi mb-2">Gas Leakage</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6">
+              Continuous monitoring for combustible gases (LPG, Methane, Smoke) in sensitive roadside or infrastructure corridors.
+            </p>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
+              <div>
+                <div class="text-xl font-mono font-bold">±2%</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">Sensor Drift</div>
+              </div>
+              <div>
+                <div class="text-xl font-mono font-bold text-watch">Instant</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">Alert Latency</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Air -->
+          <div class="hazard-card air p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="hazard-icon text-accent mb-4"><i data-lucide="cloud-fog" class="w-8 h-8"></i></div>
+            <h3 class="hazard-title text-xl font-semi mb-2">Air Pollution</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6">
+              Tracking particulate matter (PM2.5 proxy) and overall air quality indices to identify harmful environmental shifts.
+            </p>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
+              <div>
+                <div class="text-xl font-mono font-bold">60s</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">Moving Avg</div>
+              </div>
+              <div>
+                <div class="text-xl font-mono font-bold text-accent">Auto</div>
+                <div class="text-[10px] text-muted font-mono uppercase mt-1">Baseline Adapt</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <style>
+        .hazard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        @media (max-width: 1024px) { .hazard-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .hazard-grid { grid-template-columns: 1fr; } }
+      </style>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section reveal py-24 text-center border-t border-subtle bg-elevated">
+      <h2 class="text-3xl font-heading font-semi mb-4">Command the network.</h2>
+      <p class="text-secondary mb-8 max-w-lg mx-auto">
+        Access the live operational dashboard to view live telemetry, manage the GIS threat map, and dispatch alerts.
+      </p>
+      <a href="app.html" class="nav-cta mx-auto flex items-center justify-center gap-2" style="font-size: var(--text-md); padding: var(--sp-4) var(--sp-8); display: inline-flex;">
+        Launch Dashboard Interface
+        <i data-lucide="arrow-right"></i>
+      </a>
+    </section>
+  </main>
+
+  <footer class="landing-footer py-12 px-6 border-t border-default bg-base text-sm">
+    <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between gap-8">
+      <div class="footer-brand">
+        <div class="flex items-center gap-2 font-heading font-bold text-lg mb-1">
+          <img src="assets/logo-mark.svg" alt="" class="w-5 h-5" />
+          ZenAlert
+        </div>
+        <div class="text-muted">Resilient Environmental AI</div>
+      </div>
+      
+      <div class="flex gap-16">
+        <div class="flex flex-col gap-2">
+          <h5 class="text-primary font-semi mb-2 uppercase text-xs tracking-wider">Platform</h5>
+          <a href="app.html" class="text-secondary hover:text-accent transition-colors">Live Dashboard</a>
+          <a href="public-alert.html" class="text-secondary hover:text-accent transition-colors">Public Alerts</a>
+        </div>
+        <div class="flex flex-col gap-2">
+          <h5 class="text-primary font-semi mb-2 uppercase text-xs tracking-wider">Project</h5>
+          <span class="text-secondary">SIH26178</span>
+          <span class="text-secondary">GEN ERA Team</span>
+        </div>
+      </div>
+    </div>
+    <div class="max-w-[1200px] mx-auto mt-12 pt-6 border-t border-subtle text-muted flex justify-between">
+      <span>&copy; 2026 ZenAlert Team. All rights reserved.</span>
+      <span>Built for local response teams.</span>
+    </div>
+  </footer>
+
+  <script>
+    // Watch for component info fallback toggle
+    document.addEventListener('click', (e) => {
+      const isTile = e.target.closest('.component-tile');
+      const isCanvas = e.target.closest('#hero3DContainer');
+      if (isTile || isCanvas) {
+        document.getElementById('componentInfoFallback').style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "ZenAlert",
+  "short_name": "ZenAlert",
+  "description": "Resilient Environmental AI Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06120F",
+  "theme_color": "#06120F",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

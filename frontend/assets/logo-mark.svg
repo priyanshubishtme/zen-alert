@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Z-shape body with signal pulse integrated -->
+  <path d="M8 10h28l-16 12h20" stroke="#5EEAC6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Signal wave extending from Z -->
+  <path d="M34 22c2-3 4-3 6 0s4 3 6 0" stroke="#5EEAC6" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <!-- Descending leg of Z with subtle leaf/flame curve -->
+  <path d="M12 22L8 38h28" stroke="#5EEAC6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Sensor node dot -->
+  <circle cx="8" cy="38" r="3.5" fill="#5EEAC6"/>
+  <!-- Pulse ring (animated in HTML) -->
+  <circle cx="8" cy="38" r="3.5" stroke="#5EEAC6" stroke-width="1.5" fill="none" opacity="0.3" class="pulse-ring"/>
+</svg>

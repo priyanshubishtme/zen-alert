@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  
+  <title>ZenAlert | Dashboard</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/utils.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+
+  <!-- MapLibre GL JS -->
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- App JS -->
+  <script type="module" src="js/dashboard.js"></script>
+</head>
+<body class="topo-bg grain">
+
+  <div class="app-shell">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <button class="sidebar-brand" onclick="window.location.href='/'">
+        <img src="assets/logo-mark.svg" alt="ZenAlert Logo" class="sidebar-brand-logo" />
+        <div class="sidebar-brand-text">
+          <div class="sidebar-brand-name">ZenAlert</div>
+          <div class="sidebar-brand-tagline">Resilient Environmental AI</div>
+        </div>
+      </button>
+
+      <div class="pilot-badge">
+        <span class="status-dot green pulse"></span>
+        <div>
+          <strong>Pilot Network</strong>
+          <small>Bhowali Range · Nainital</small>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="map" onclick="window.location.hash='map'">
+          <i data-lucide="map"></i> Live Map
+        </button>
+        <button class="nav-item" data-page="incidents" onclick="window.location.hash='incidents'">
+          <i data-lucide="alert-triangle"></i> Incident Center
+          <span class="nav-item-count nav-count">0</span>
+        </button>
+        <button class="nav-item" data-page="sensors" onclick="window.location.hash='sensors'">
+          <i data-lucide="radio"></i> Sensors & Air
+        </button>
+        <button class="nav-item" data-page="devices" onclick="window.location.hash='devices'">
+          <i data-lucide="cpu"></i> Device Health
+        </button>
+        <button class="nav-item" data-page="ai-verify" onclick="window.location.hash='ai-verify'">
+          <i data-lucide="eye"></i> AI Verification
+        </button>
+        <button class="nav-item" data-page="network" onclick="window.location.hash='network'">
+          <i data-lucide="network"></i> Network Arch
+        </button>
+        <button class="nav-item" data-page="alerts" onclick="window.location.hash='alerts'">
+          <i data-lucide="bell-ring"></i> Alerts
+        </button>
+        <button class="nav-item" data-page="analytics" onclick="window.location.hash='analytics'">
+          <i data-lucide="bar-chart-2"></i> Analytics
+        </button>
+        <button class="nav-item" data-page="admin" onclick="window.location.hash='admin'">
+          <i data-lucide="settings"></i> Admin
+        </button>
+        <button class="nav-item" data-page="public" onclick="window.location.hash='public'">
+          <i data-lucide="external-link"></i> Public Alert View
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-status">
+          <div id="connectionStatus" class="status-dot green"></div>
+          <div>
+            <div class="sidebar-status-label">System Status</div>
+            <div class="sidebar-status-value" id="connectionText">Online</div>
+          </div>
+        </div>
+        <div class="sidebar-meta">SIH26178 · ZenAlert · v1.0 Demo</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileMenu"><i data-lucide="menu"></i></button>
+          <div>
+            <div class="text-xs text-tertiary" style="letter-spacing: 0.05em; text-transform: uppercase;">Operations / Environmental Monitoring</div>
+            <h1 class="topbar-title" id="pageTitle">Live Environmental Map</h1>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <span class="demo-tag">Demo Data</span>
+          <button class="btn-icon" id="langToggle" aria-label="Switch language" style="width: 50px; font-size: 11px;">EN | हिं</button>
+          <button class="btn-icon" id="themeToggle" aria-label="Toggle theme"><i data-lucide="moon"></i></button>
+          
+          <button class="notifications-btn" onclick="window.location.hash='incidents'">
+            <i data-lucide="bell"></i>
+            <span class="notifications-count" id="globalAlertCount" style="display: none;">0</span>
+          </button>
+          
+          <button class="user-menu">
+            <div class="user-avatar">RS</div>
+            <div class="user-info">
+              <span class="user-name">Rohit</span>
+              <span class="user-role">Field Officer</span>
+            </div>
+          </button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        
+        <!-- ==============================================
+             PAGE: MAP (Dashboard)
+             ============================================== -->
+        <section class="page active" id="page-map">
+          
+          <div class="page-header">
+            <div>
+              <h2 class="section-heading" style="font-size: var(--text-xl); margin-bottom: var(--sp-1);">Environmental operations at a glance.</h2>
+              <p class="text-secondary text-sm">See verified signals, active incidents and network health in one shared operational view.</p>
+            </div>
+            <div class="page-header-actions">
+              <button class="btn btn-primary" id="simulateFire">Simulate Fire Event</button>
+              <button class="btn btn-ghost" id="simulateGas">Simulate Gas Leak</button>
+            </div>
+          </div>
+
+          <!-- KPIs -->
+          <div class="kpi-grid">
+            <div class="kpi-tile">
+              <div class="kpi-label">Nodes Online</div>
+              <div class="kpi-value"><span id="kpiNodes">-</span><small id="kpiNodesTotal">/-</small></div>
+              <div class="kpi-footer good"><i data-lucide="arrow-up-right" style="width:12px; height:12px;"></i> Stable</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-label">Open Incidents</div>
+              <div class="kpi-value" id="kpiIncidents">-</div>
+              <div class="kpi-footer warn"><i data-lucide="alert-circle" style="width:12px; height:12px;"></i> Needs review</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-label">Avg PM2.5 Proxy</div>
+              <div class="kpi-value"><span id="kpiPm25">-</span><small> µg/m³</small></div>
+              <div class="kpi-footer good"><i data-lucide="check" style="width:12px; height:12px;"></i> Normal range</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-label">Alert Latency</div>
+              <div class="kpi-value"><span id="kpiLatency">-</span><small> s</small></div>
+              <div class="kpi-footer good"><i data-lucide="zap" style="width:12px; height:12px;"></i> Optimized</div>
+            </div>
+          </div>
+
+          <!-- Map & Side Panels -->
+          <div class="map-layout">
+            
+            <!-- Map Container -->
+            <div class="map-container">
+              <div class="map-header">
+                <div class="map-header-left">
+                  <i data-lucide="map-pin" style="color: var(--accent);"></i>
+                  <div>
+                    <div class="map-header-title">Threat Map</div>
+                    <div class="map-header-sub">Bhowali Range · Nainital</div>
+                  </div>
+                </div>
+                <div class="map-controls">
+                  <button class="chip active" data-layer="nodes">Nodes</button>
+                  <button class="chip active" data-layer="zones">Zones</button>
+                </div>
+              </div>
+              <div class="map-body" id="mapView"></div>
+            </div>
+            
+            <!-- Right Sidebar Panels -->
+            <div class="map-sidebar">
+              <!-- Live Incident Feed -->
+              <div class="sidebar-panel flex flex-col h-full" style="max-height: 250px;">
+                <div class="panel-header flex justify-between items-center">
+                  <div>
+                    <div class="panel-title">Live Feed</div>
+                    <div class="panel-subtitle">Latest verified alerts</div>
+                  </div>
+                  <span class="live-pill"><span class="status-dot green pulse"></span> LIVE</span>
+                </div>
+                <div class="panel-body p-2" style="overflow-y: auto;">
+                  <div class="incident-feed" id="incidentFeed">
+                    <!-- Feed items rendered here -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selected Node Sensor Chart (Dummy UI) -->
+              <div class="sidebar-panel flex-1">
+                <div class="panel-header">
+                  <div class="panel-title">Node N-BHW-007</div>
+                  <div class="panel-subtitle">Live PM2.5 Proxy</div>
+                </div>
+                <div class="panel-body p-0 pt-2 relative">
+                  <canvas id="sensorChart" class="chart-canvas"></canvas>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <!-- Bottom row -->
+          <div class="bottom-grid">
+            <!-- AI Fusion Overview -->
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">AI Fusion Confidence</div>
+                  <div class="panel-subtitle">Top Active Incident</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="fusion-gauge-container">
+                  <div class="radial-gauge">
+                    <svg viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--bg-elevated)" stroke-width="3" />
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--severity-critical)" stroke-width="3" stroke-dasharray="91, 100" />
+                    </svg>
+                    <div class="radial-gauge-label">
+                      <div class="radial-gauge-value">0.91</div>
+                      <div class="text-[10px] text-muted">CONF</div>
+                    </div>
+                  </div>
+                  <div class="confidence-bars">
+                    <div class="confidence-bar">
+                      <div class="confidence-bar-label"><span>Vision AI</span><b>0.94</b></div>
+                      <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width: 94%;"></div></div>
+                    </div>
+                    <div class="confidence-bar">
+                      <div class="confidence-bar-label"><span>Sensor Anomaly</span><b>0.87</b></div>
+                      <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width: 87%; background: var(--severity-high);"></div></div>
+                    </div>
+                    <div class="confidence-bar">
+                      <div class="confidence-bar-label"><span>Context Score</span><b>0.71</b></div>
+                      <div class="confidence-bar-track"><div class="confidence-bar-fill" style="width: 71%; background: var(--severity-watch);"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="severity-banner critical mt-4">
+                  <span>CRITICAL HAZARD</span>
+                  <button class="btn-text" style="color:inherit" onclick="window.openIncidentDetail(2041)">Review ↗</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gateway Health -->
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">Gateway Health</div>
+                  <div class="panel-subtitle">EDGE-GW-01 · NVIDIA Jetson</div>
+                </div>
+                <span class="status-badge delivered">99.2% UPTIME</span>
+              </div>
+              <div class="panel-body">
+                <div class="health-row">
+                  <div class="health-row-label">CPU</div>
+                  <div class="health-row-value">42%</div>
+                  <div class="health-bar"><div class="health-bar-fill" style="width: 42%;"></div></div>
+                </div>
+                <div class="health-row">
+                  <div class="health-row-label">RAM</div>
+                  <div class="health-row-value">61%</div>
+                  <div class="health-bar"><div class="health-bar-fill" style="width: 61%;"></div></div>
+                </div>
+                <div class="health-row">
+                  <div class="health-row-label">Storage</div>
+                  <div class="health-row-value">38%</div>
+                  <div class="health-bar"><div class="health-bar-fill" style="width: 38%;"></div></div>
+                </div>
+                
+                <div class="health-metrics">
+                  <div class="health-metric">
+                    <small>Power</small>
+                    <b>81%</b>
+                  </div>
+                  <div class="health-metric">
+                    <small>Signal</small>
+                    <b>-71 dBm</b>
+                  </div>
+                  <div class="health-metric">
+                    <small>Pkt Loss</small>
+                    <b>1.4%</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: INCIDENTS
+             ============================================== -->
+        <section class="page" id="page-incidents">
+          <div class="subpage-header">
+            <h2>Incident Center</h2>
+            <p>Review, verify and coordinate active environmental events.</p>
+          </div>
+          
+          <div class="map-layout">
+            <div class="panel">
+              <div class="panel-body">
+                <div class="filter-row">
+                  <div class="search-input">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search incidents, nodes, zones..." />
+                  </div>
+                  <button class="chip active">All</button>
+                  <button class="chip">Critical</button>
+                  <button class="chip">High</button>
+                  <button class="chip">Watch</button>
+                </div>
+                
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Severity</th>
+                        <th>Type</th>
+                        <th>Node</th>
+                        <th>Zone</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="incidentTableBody">
+                      <!-- Loaded via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Workflow panel -->
+            <div class="panel flex-1">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">Response Workflow</div>
+                  <div class="panel-subtitle">Standard Operating Procedure</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-time">Step 1</div>
+                    <div class="timeline-event"><strong>Verification</strong><br/>Review AI confidence and sensor logs to verify threat level.</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-time">Step 2</div>
+                    <div class="timeline-event"><strong>Acknowledge</strong><br/>Claim the incident to notify other responders.</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-time">Step 3</div>
+                    <div class="timeline-event"><strong>Broadcast</strong><br/>Use the Alerts tab to notify field teams or public.</div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-time">Step 4</div>
+                    <div class="timeline-event"><strong>Resolve</strong><br/>Mark as resolved or false alarm once cleared.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: SENSORS
+             ============================================== -->
+        <section class="page" id="page-sensors">
+          <div class="subpage-header flex justify-between items-end">
+            <div>
+              <h2>Sensors & Air Quality</h2>
+              <p>Track the sensor signals that inform every alert.</p>
+            </div>
+            <div class="form-group mb-0">
+              <select class="form-select w-48">
+                <option>N-BHW-007 (Bhowali Edge)</option>
+                <option>N-BHW-011 (Sattal Corridor)</option>
+                <option>N-BHW-004 (Roadside)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="panel mb-6">
+            <div class="panel-body py-4">
+              <h4 class="text-sm font-semi mb-2 text-secondary">Air Quality Index (AQI) Category</h4>
+              <div class="aqi-scale">
+                <div class="aqi-segment good">GOOD (0-50)</div>
+                <div class="aqi-segment satisfactory">SATISFACTORY (51-100)</div>
+                <div class="aqi-segment moderate active-aqi">MODERATE (101-200)</div>
+                <div class="aqi-segment poor">POOR (201-300)</div>
+                <div class="aqi-segment very-poor">VERY POOR (301-400)</div>
+                <div class="aqi-segment severe">SEVERE (>400)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col mb-6">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">PM2.5 Proxy Trend</div>
+                  <div class="panel-subtitle">Node: N-BHW-007</div>
+                </div>
+              </div>
+              <div class="panel-body p-0 pt-4">
+                <canvas id="sensorChart1" class="chart-canvas large"></canvas>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">MQ2 Gas Index Trend</div>
+                  <div class="panel-subtitle">Node: N-BHW-007</div>
+                </div>
+              </div>
+              <div class="panel-body p-0 pt-4">
+                <canvas id="sensorChart2" class="chart-canvas large"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: DEVICES
+             ============================================== -->
+        <section class="page" id="page-devices">
+          <div class="subpage-header">
+            <h2>Device Health</h2>
+            <p>Monitor node connectivity, power and field health.</p>
+          </div>
+
+          <div class="panel">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Node ID</th>
+                    <th>Status</th>
+                    <th>Battery</th>
+                    <th>RSSI</th>
+                    <th>Packet Loss</th>
+                    <th>Firmware</th>
+                    <th>Last Seen</th>
+                  </tr>
+                </thead>
+                <tbody id="devicesTableBody">
+                  <!-- Loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: AI VERIFICATION
+             ============================================== -->
+        <section class="page" id="page-ai-verify">
+          <div class="subpage-header">
+            <h2>AI Verification</h2>
+            <p>Visual and multi-modal evidence for threat classification.</p>
+          </div>
+          <div class="map-layout">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Camera Feed · N-BHW-007</div></div>
+              <div class="panel-body p-0 relative" style="background: var(--bg-deepest);">
+                <div class="drawer-evidence m-0 rounded-none h-[400px]">
+                  <div class="evidence-trees"></div>
+                  <div class="evidence-smoke"></div>
+                  <div class="bbox" style="width: 30%; height: 40%; left: 35%; border-color: var(--severity-critical);">
+                    <div class="bbox-label">FIRE 0.94</div>
+                  </div>
+                  <div class="bbox" style="width: 45%; height: 50%; left: 15%; top: 10%; border-color: var(--severity-watch);">
+                    <div class="bbox-label" style="background: var(--severity-watch);">SMOKE 0.88</div>
+                  </div>
+                  <div class="scan-line"></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel flex-1">
+              <div class="panel-header"><div class="panel-title">Multi-Modal Fusion</div></div>
+              <div class="panel-body">
+                <h4 class="text-sm font-semi mb-2 text-secondary">Sensor Evidence</h4>
+                <div class="flex flex-col gap-2 mb-6">
+                  <div class="flex justify-between text-sm"><span class="text-secondary">MQ2 (Smoke/Gas)</span><strong class="text-critical mono">812 (High)</strong></div>
+                  <div class="flex justify-between text-sm"><span class="text-secondary">PM2.5 Proxy</span><strong class="text-watch mono">138 µg/m³</strong></div>
+                  <div class="flex justify-between text-sm"><span class="text-secondary">Temperature</span><strong class="text-watch mono">41.2 °C (Anomalous)</strong></div>
+                </div>
+                <h4 class="text-sm font-semi mb-2 text-secondary">Classification</h4>
+                <div class="severity-banner critical mb-4">
+                  <span>CONFIRMED: FOREST FIRE</span>
+                  <span class="mono">0.91</span>
+                </div>
+                <button class="btn btn-primary w-full justify-center" onclick="window.location.hash='alerts'">ESCALATE TO ALERT</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: NETWORK ARCHITECTURE
+             ============================================== -->
+        <section class="page" id="page-network">
+          <div class="subpage-header">
+            <h2>Network Architecture</h2>
+            <p>System topology and offline-first state monitoring.</p>
+          </div>
+          <div class="panel mb-6">
+            <div class="panel-body text-center p-8">
+              <h3 class="text-lg font-semi mb-6">Live Topology</h3>
+              
+              <!-- Simple flow visualization -->
+              <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                <div class="p-4 bg-surface border border-default rounded-lg text-center w-32">
+                  <i data-lucide="radio" class="mx-auto mb-2 text-accent"></i>
+                  <div class="text-xs font-semi">14 NODES</div>
+                  <div class="text-[10px] text-normal">Online</div>
+                </div>
+                <i data-lucide="arrow-right" class="text-muted hidden md:block"></i>
+                <i data-lucide="arrow-down" class="text-muted md:hidden"></i>
+                
+                <div class="p-4 bg-surface border border-default rounded-lg text-center w-32">
+                  <i data-lucide="wifi" class="mx-auto mb-2 text-accent"></i>
+                  <div class="text-xs font-semi">LORA MESH</div>
+                  <div class="text-[10px] text-normal">Active</div>
+                </div>
+                <i data-lucide="arrow-right" class="text-muted hidden md:block"></i>
+                <i data-lucide="arrow-down" class="text-muted md:hidden"></i>
+                
+                <div class="p-4 bg-surface border border-accent rounded-lg text-center w-32">
+                  <i data-lucide="box" class="mx-auto mb-2 text-primary"></i>
+                  <div class="text-xs font-semi text-primary">EDGE GATEWAY</div>
+                  <div class="text-[10px] text-normal">Processing</div>
+                </div>
+                <i data-lucide="arrow-right" class="text-muted hidden md:block"></i>
+                <i data-lucide="arrow-down" class="text-muted md:hidden"></i>
+                
+                <div class="p-4 bg-surface border border-default rounded-lg text-center w-32 relative">
+                  <div class="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-critical animate-pulse"></div>
+                  <i data-lucide="cloud" class="mx-auto mb-2 text-muted"></i>
+                  <div class="text-xs font-semi text-muted">CLOUD API</div>
+                  <div class="text-[10px] text-critical">Offline</div>
+                </div>
+              </div>
+              
+              <div class="mt-8 p-4 bg-severity-watch-bg border border-severity-watch-border rounded-lg inline-block text-severity-watch text-sm">
+                <i data-lucide="wifi-off" class="inline-block mr-2 w-4 h-4"></i>
+                <strong>OFFLINE-FIRST MODE ACTIVE:</strong> Internet connectivity lost. Local edge AI and LoRa mesh are maintaining system integrity.
+              </div>
+            </div>
+          </div>
+          
+          <!-- Power System Visualization -->
+          <div class="panel">
+            <div class="panel-header"><div class="panel-title">Power System Visualization (Edge Gateway)</div></div>
+            <div class="panel-body">
+              <div class="grid grid-cols-4 gap-4 text-center">
+                <div class="p-4 bg-elevated rounded-lg">
+                  <i data-lucide="sun" class="mx-auto mb-2 text-watch"></i>
+                  <div class="text-xs font-semi">SOLAR PANEL</div>
+                  <div class="text-xs text-watch font-mono mt-1">45W Generating</div>
+                </div>
+                <div class="p-4 bg-elevated rounded-lg">
+                  <i data-lucide="zap" class="mx-auto mb-2 text-accent"></i>
+                  <div class="text-xs font-semi">CHARGE CONTROLLER</div>
+                  <div class="text-xs text-normal font-mono mt-1">MPPT Active</div>
+                </div>
+                <div class="p-4 bg-elevated rounded-lg">
+                  <i data-lucide="battery-charging" class="mx-auto mb-2 text-normal"></i>
+                  <div class="text-xs font-semi">BATTERY</div>
+                  <div class="text-xs text-normal font-mono mt-1">87% Capacity</div>
+                </div>
+                <div class="p-4 bg-elevated rounded-lg">
+                  <i data-lucide="cpu" class="mx-auto mb-2 text-primary"></i>
+                  <div class="text-xs font-semi">ELECTRONICS</div>
+                  <div class="text-xs text-secondary font-mono mt-1">12W Draw</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: ALERTS
+             ============================================== -->
+        <section class="page" id="page-alerts">
+          <div class="subpage-header">
+            <h2>Alert Operations</h2>
+            <p>Prepare and record targeted safety broadcasts.</p>
+          </div>
+
+          <div class="two-col">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Alert Composer</div></div>
+              <div class="panel-body">
+                <div class="form-group mb-4">
+                  <label class="form-label">Zone / Group</label>
+                  <select class="form-select" id="alertGroup">
+                    <option>Bhowali Range · Field Responders</option>
+                    <option>District Admin · Nainital</option>
+                    <option>Forest-Edge Communities</option>
+                  </select>
+                </div>
+                <div class="form-group mb-4">
+                  <label class="form-label">Channel</label>
+                  <select class="form-select" id="alertChannel">
+                    <option>SMS + Push + Siren</option>
+                    <option>SMS Fallback</option>
+                  </select>
+                </div>
+                <div class="form-group mb-4">
+                  <label class="form-label">Message</label>
+                  <textarea class="form-textarea" id="alertMessage" onkeyup="document.getElementById('charCount').textContent = this.value.length + ' characters'">CRITICAL ENVIRONMENTAL ALERT: Hazard detected near Bhowali Forest Edge. Response team acknowledgement required.</textarea>
+                  <div class="char-count" id="charCount">118 characters</div>
+                </div>
+                
+                <div class="message-preview">
+                  <div class="message-preview-header"><i data-lucide="smartphone"></i> Preview</div>
+                  <div class="message-preview-body" id="alertPreview">CRITICAL ENVIRONMENTAL ALERT: Hazard detected near Bhowali Forest Edge. Response team acknowledgement required.</div>
+                </div>
+
+                <button class="btn btn-primary w-full justify-center" onclick="window.confirmAlert()">Broadcast Alert</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header"><div class="panel-title">Delivery Log</div></div>
+              <div class="panel-body p-0">
+                <table class="data-table">
+                  <thead><tr><th>Time</th><th>Incident</th><th>Channel</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>12:14:07</td><td><span class="mono">INC-2041</span></td><td>Siren</td><td><span class="status-badge delivered">DELIVERED</span></td></tr>
+                    <tr><td>12:14:07</td><td><span class="mono">INC-2041</span></td><td>SMS</td><td><span class="status-badge delivered">DELIVERED</span></td></tr>
+                    <tr><td>12:11:29</td><td><span class="mono">INC-2040</span></td><td>Push</td><td><span class="status-badge delivered">DELIVERED</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: ANALYTICS
+             ============================================== -->
+        <section class="page" id="page-analytics">
+          <div class="subpage-header flex justify-between items-end">
+            <div>
+              <h2>Analytics & Reports</h2>
+              <p>Understand changing conditions and response performance.</p>
+            </div>
+            <div class="flex gap-2 bg-surface p-1 rounded-md border border-default">
+              <button class="px-3 py-1 rounded text-sm bg-hover text-primary font-medium" id="btn7d">7 Days</button>
+              <button class="px-3 py-1 rounded text-sm text-secondary hover:text-primary" id="btn30d">30 Days</button>
+            </div>
+          </div>
+
+          <div class="two-col mb-6">
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">Hazard Signal Trend</div>
+                  <div class="panel-subtitle">Composite anomaly score</div>
+                </div>
+              </div>
+              <div class="panel-body p-0 pt-4">
+                <canvas id="analyticsTrendChart" class="chart-canvas large"></canvas>
+              </div>
+            </div>
+            
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">Incident Mix</div>
+                  <div class="panel-subtitle">Current prototype period</div>
+                </div>
+              </div>
+              <div class="panel-body" style="height: 280px;">
+                <canvas id="analyticsMixChart" class="chart-canvas large"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="panel">
+              <div class="panel-header">
+                  <div>
+                    <div class="panel-title">Average Response Time</div>
+                    <div class="panel-subtitle">Minutes from detection to acknowledgement</div>
+                  </div>
+                </div>
+                <div class="panel-body p-0 pt-4" style="height: 260px;">
+                  <canvas id="analyticsResponseChart" class="chart-canvas large"></canvas>
+                </div>
+            </div>
+            
+            <div class="panel">
+              <div class="panel-header">
+                <div>
+                  <div class="panel-title">Node Uptime Heatmap</div>
+                  <div class="panel-subtitle">Last 7 days connectivity</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="heatmap-grid" id="uptimeHeatmap">
+                  <!-- Generated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             PAGE: ADMIN
+             ============================================== -->
+        <section class="page" id="page-admin">
+          <div class="subpage-header">
+            <h2>Administration</h2>
+            <p>Maintain access, operating thresholds and readiness.</p>
+          </div>
+          
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchAdminTab('users')">Users & Roles</button>
+            <button class="tab-btn" onclick="switchAdminTab('thresholds')">Thresholds</button>
+          </div>
+
+          <div id="tab-users" class="tab-panel active">
+            <div class="panel">
+              <div class="panel-body p-0">
+                <table class="data-table">
+                  <thead><tr><th>User</th><th>Role</th><th>Zone</th><th>2FA</th></tr></thead>
+                  <tbody>
+                    <tr><td>Rohit</td><td><span class="role-chip officer">Officer</span></td><td>Bhowali</td><td class="text-normal">Enabled</td></tr>
+                    <tr><td>Admin</td><td><span class="role-chip admin">Admin</span></td><td>All</td><td class="text-normal">Enabled</td></tr>
+                    <tr><td>Resp1</td><td><span class="role-chip responder">Responder</span></td><td>Bhowali</td><td class="text-watch">SMS</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div id="tab-thresholds" class="tab-panel">
+            <div class="panel max-w-2xl">
+              <div class="panel-body flex flex-col gap-4">
+                <div class="form-group">
+                  <label class="form-label">Critical Confidence Threshold</label>
+                  <input class="form-input" type="number" value="0.85" step="0.05" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Node Offline Timeout (mins)</label>
+                  <input class="form-input" type="number" value="15" />
+                </div>
+                <button class="btn btn-primary mt-2" onclick="alert('Settings saved.')">Save Configuration</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Incident Slide-over Drawer -->
+  <div class="modal-overlay" id="incidentModal" data-close-modal></div>
+  <div class="drawer" id="incidentDrawer">
+    <div class="drawer-header">
+      <div>
+        <div class="text-xs text-tertiary mb-1" style="letter-spacing: 0.05em; text-transform: uppercase;">Incident Detail</div>
+        <h3 id="modalTitle" class="text-lg">CRITICAL · Forest Fire</h3>
+      </div>
+      <button class="btn-icon" data-close-modal><i data-lucide="x"></i></button>
+    </div>
+    <div class="drawer-body">
+      
+      <!-- Simulated Evidence Frame -->
+      <div class="drawer-evidence">
+        <div class="evidence-trees"></div>
+        <div class="evidence-smoke"></div>
+        <div class="bbox">
+          <div class="bbox-label">SMOKE <span id="modalConf">0.91</span></div>
+        </div>
+        <div class="scan-line"></div>
+      </div>
+      <p class="text-xs text-muted mb-6">Synthetic frame · full-resolution imagery remains on the edge node for privacy and bandwidth efficiency.</p>
+
+      <div class="drawer-stat-grid">
+        <div class="drawer-stat">
+          <div class="drawer-stat-label">Node</div>
+          <div class="drawer-stat-value" id="modalNode">N-BHW-007</div>
+        </div>
+        <div class="drawer-stat">
+          <div class="drawer-stat-label">Zone</div>
+          <div class="drawer-stat-value" id="modalZone">Bhowali Edge</div>
+        </div>
+        <div class="drawer-stat">
+          <div class="drawer-stat-label">First Seen</div>
+          <div class="drawer-stat-value" id="modalTime">12:14:05</div>
+        </div>
+      </div>
+
+      <h4 class="text-sm font-semi mb-3 border-b border-subtle pb-2">Sensor Snapshot</h4>
+      <div class="flex flex-col gap-2 mb-6">
+        <div class="flex justify-between text-sm"><span class="text-secondary">MQ2 (Smoke/Gas)</span><strong class="text-critical mono">612</strong></div>
+        <div class="flex justify-between text-sm"><span class="text-secondary">PM2.5 Proxy</span><strong class="text-watch mono">138 µg/m³</strong></div>
+        <div class="flex justify-between text-sm"><span class="text-secondary">Temperature</span><strong class="mono">41.2 °C</strong></div>
+      </div>
+
+      <h4 class="text-sm font-semi mb-3 border-b border-subtle pb-2">Response Timeline</h4>
+      <div class="timeline" id="modalTimeline">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="drawer-actions" id="modalActions">
+        <!-- Action buttons rendered by JS based on status -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Alert Confirmation Modal -->
+  <div class="modal-overlay" id="alertConfirmOverlay" onclick="this.classList.remove('open'); document.getElementById('alertConfirmModal').classList.remove('open')"></div>
+  <div class="modal-content panel" id="alertConfirmModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: var(--z-modal); width: 90%; max-width: 400px; display: none; opacity: 0; transition: opacity 0.2s;">
+    <div class="panel-body">
+      <h3 class="text-lg font-semi mb-2 text-critical"><i data-lucide="alert-triangle" class="inline-block mr-2"></i> Confirm Broadcast</h3>
+      <p class="text-sm text-secondary mb-4">You are about to broadcast this alert to the selected group. This action cannot be undone.</p>
+      <div class="flex gap-3 justify-end">
+        <button class="btn btn-ghost" onclick="document.getElementById('alertConfirmOverlay').classList.remove('open'); document.getElementById('alertConfirmModal').style.opacity = 0; setTimeout(() => document.getElementById('alertConfirmModal').style.display = 'none', 200);">Cancel</button>
+        <button class="btn btn-primary bg-critical text-white" onclick="document.getElementById('alertConfirmOverlay').classList.remove('open'); document.getElementById('alertConfirmModal').style.opacity = 0; setTimeout(() => document.getElementById('alertConfirmModal').style.display = 'none', 200); window.triggerAlert();">Yes, Broadcast</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offline Banner -->
+  <div class="offline-banner" id="offlineBanner">
+    OFFLINE MODE · Attempting reconnection...
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-stack" id="toastStack"></div>
+  
+  <script>
+    // Tab logic for admin
+    function switchAdminTab(tabId) {
+      document.querySelectorAll('#page-admin .tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#page-admin .tab-panel').forEach(panel => panel.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+    
+    // Alert logic
+    document.getElementById('alertMessage').addEventListener('input', (e) => {
+      document.getElementById('alertPreview').textContent = e.target.value || 'Type your message...';
+    });
+    
+    window.confirmAlert = () => {
+      document.getElementById('alertConfirmOverlay').classList.add('open');
+      const modal = document.getElementById('alertConfirmModal');
+      modal.style.display = 'block';
+      setTimeout(() => modal.style.opacity = 1, 10);
+    };
+    
+    window.triggerAlert = () => {
+      alert('Alert successfully broadcasted!');
+    };
+  </script>
+
+</body>
+</html>
