@@ -12,6 +12,7 @@ from pathlib import Path
 from queue import Queue
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from sse_starlette.sse import EventSourceResponse
@@ -19,6 +20,18 @@ from sse_starlette.sse import EventSourceResponse
 from data import sim, gateway_snapshot
 
 app = FastAPI(title="ZenAlert API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:8765",
+        "http://127.0.0.1:8765",
+        "http://localhost:8770",
+        "http://127.0.0.1:8770",
+    ],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ── Static files ──────────────────────────────────────────────
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
@@ -43,6 +56,16 @@ async def dashboard():
 @app.get("/public-alert.html", response_class=HTMLResponse)
 async def public_alert():
     return FileResponse(str(FRONTEND_DIR / "public-alert.html"))
+
+@app.get("/simulation", response_class=HTMLResponse)
+@app.get("/simulation.html", response_class=HTMLResponse)
+async def simulation():
+    return FileResponse(str(FRONTEND_DIR / "simulation.html"))
+
+@app.get("/architecture", response_class=HTMLResponse)
+@app.get("/architecture.html", response_class=HTMLResponse)
+async def architecture():
+    return FileResponse(str(FRONTEND_DIR / "architecture.html"))
 
 @app.get("/manifest.json")
 async def manifest():

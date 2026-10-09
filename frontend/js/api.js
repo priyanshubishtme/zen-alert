@@ -3,7 +3,8 @@
  * Talks to the FastAPI backend or falls back gracefully.
  */
 
-const API_BASE = window.location.origin;
+const API_BASE = window.ZENALERT_API_BASE
+  || (['8765', '8770'].includes(window.location.port) ? 'http://127.0.0.1:8000' : window.location.origin);
 let _online = true;
 let _eventSource = null;
 const _listeners = new Map(); // event type → Set<callback>
@@ -80,11 +81,31 @@ export async function broadcastAlert(payload) {
 }
 
 export async function simulateFire() {
-  return apiFetch('/api/simulate/fire', { method: 'POST' });
+  const res = await apiFetch('/api/simulate/fire', { method: 'POST' });
+  if (!res) {
+    const incident = {
+      id: Date.now(), severity: 'critical', type: 'Forest Fire / Smoke',
+      node: 'N-SIM-001', zone: 'Test Fire Zone', lat: 29.3947, lng: 79.4582,
+      ai_confidence: 0.99, timestamp: new Date().toISOString()
+    };
+    if(FALLBACK.incidents) FALLBACK.incidents.unshift(incident);
+    return { ok: true, incident };
+  }
+  return res;
 }
 
 export async function simulateGas() {
-  return apiFetch('/api/simulate/gas', { method: 'POST' });
+  const res = await apiFetch('/api/simulate/gas', { method: 'POST' });
+  if (!res) {
+    const incident = {
+      id: Date.now() + 1, severity: 'warn', type: 'Toxic Gas Detection',
+      node: 'N-SIM-002', zone: 'Test Industrial Zone', lat: 29.3940, lng: 79.4590,
+      ai_confidence: 0, timestamp: new Date().toISOString()
+    };
+    if(FALLBACK.incidents) FALLBACK.incidents.unshift(incident);
+    return { ok: true, incident };
+  }
+  return res;
 }
 
 /* ── SSE Stream ─────────────────────────────────────────────── */
@@ -118,6 +139,17 @@ export function onStreamEvent(type, callback) {
 }
 
 export function isOnline() { return _online; }
+
+export async function checkHealth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/overview`, { cache: 'no-store' });
+    _online = res.ok;
+    return _online;
+  } catch {
+    _online = false;
+    return false;
+  }
+}
 
 /* ── Fallback data ──────────────────────────────────────────── */
 const FALLBACK = {

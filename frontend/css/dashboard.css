@@ -226,6 +226,15 @@
 }
 .mobile-menu-btn svg { width: 18px; height: 18px; }
 
+#langToggle .lang-active {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+#langToggle[aria-pressed="true"] {
+  border-color: var(--border-accent);
+  background: var(--accent-bg);
+}
+
 /* Notifications bell */
 .notifications-btn {
   position: relative;
@@ -326,6 +335,12 @@
 
 .page { display: none; }
 .page.active { display: block; animation: fadeIn var(--duration-normal) var(--ease-out) both; }
+
+/* Keep the embedded prototype sized even though its iframe is absolutely positioned. */
+.prototype-frame-panel {
+  height: clamp(600px, 75vh, 900px);
+  min-height: 600px;
+}
 
 /* ── Page header (simulation buttons) ──────────────────────── */
 .page-header {
@@ -970,6 +985,13 @@
     transform: translateX(0);
     box-shadow: var(--shadow-xl);
   }
+  .sidebar.open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: rgba(0, 0, 0, 0.55);
+  }
   .mobile-menu-btn { display: flex; }
   .main-content { grid-column: 1; }
   .map-layout { grid-template-columns: 1fr; }
@@ -978,20 +1000,92 @@
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .data-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col, .three-col { grid-template-columns: 1fr; }
+  .panel-grid,
+  .content-grid,
+  .analytics-grid,
+  .deployment-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .page-content { padding: var(--sp-4); }
+  .page-content { padding: 1rem; overflow-x: hidden; }
   .kpi-grid { grid-template-columns: 1fr 1fr; }
   .data-grid { grid-template-columns: 1fr 1fr; }
   .map-sidebar { grid-template-columns: 1fr; }
-  .topbar { padding: 0 var(--sp-4); }
+  .topbar {
+    min-height: var(--topbar-height);
+    height: auto;
+    padding: 0.65rem 1rem;
+    gap: 0.65rem;
+  }
+  .topbar-left { min-width: 0; gap: 0.65rem; }
+  .topbar-left > div { min-width: 0; }
+  .topbar-left .text-xs {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 36vw;
+  }
+  .topbar-title {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 42vw;
+  }
+  .topbar-right { gap: 0.4rem; }
+  .topbar-right > .flex { display: none; }
+  .topbar-right .btn-icon,
+  .topbar-right .notifications-btn { width: 34px; height: 34px; }
+  #langToggle { width: auto !important; min-width: 48px; padding: 0.35rem 0.45rem; }
   .user-info { display: none; }
+  .user-menu { padding: 0; }
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  .page-header-actions { width: 100%; flex-wrap: wrap; }
+  .page-header-actions > * { flex: 1 1 auto; }
+  .panel { min-width: 0; }
+  .table-wrap, .data-table-wrap, .overflow-table { overflow-x: auto; max-width: 100%; }
+  .prototype-frame-panel { height: min(78vh, 680px); min-height: 520px; }
+  .prototype-frame-panel iframe { min-width: 0; }
+  .map-container { min-height: 390px; }
+  .chart-container { max-width: 100%; overflow: hidden; }
+  .subpage-header {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .subpage-header h2 { font-size: 1.35rem; line-height: 1.25; }
+  .subpage-header p { font-size: 0.9rem; line-height: 1.5; }
+  .panel-header {
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+  .panel-body { min-width: 0; }
+  .form-grid,
+  .settings-grid,
+  .threshold-grid { grid-template-columns: 1fr !important; }
+  .map-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .map-header-right { width: 100%; justify-content: flex-start; }
+  .incident-detail,
+  .detail-drawer { width: min(100vw, 100%); }
+  pre, code { max-width: 100%; overflow-x: auto; }
 }
 
 @media (max-width: 480px) {
+  .page-content { padding: 0.75rem; }
   .kpi-grid { grid-template-columns: 1fr; }
   .data-grid { grid-template-columns: 1fr; }
   .filter-row { flex-direction: column; }
   .filter-row .search-input { width: 100%; }
+  .topbar-left .text-xs { display: none; }
+  .topbar-title { max-width: 46vw; font-size: 0.88rem; }
+  .notifications-btn { display: none !important; }
+  .page-header-actions > * { width: 100%; }
+  .prototype-frame-panel { min-height: 480px; height: 72vh; }
 }

@@ -3,7 +3,12 @@
  */
 
 export function initLandingAnimations() {
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  const revealElements = document.querySelectorAll('.reveal');
+
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    revealElements.forEach(el => el.classList.add('visible'));
+    return;
+  }
   
   gsap.registerPlugin(ScrollTrigger);
 
@@ -35,21 +40,26 @@ export function initLandingAnimations() {
   }
 
   // Scroll reveals
-  document.querySelectorAll('.reveal').forEach((el) => {
+  revealElements.forEach((el) => {
     gsap.fromTo(el, 
       { y: 40, opacity: 0 },
       {
         y: 0, opacity: 1,
         duration: 0.8,
         ease: 'power2.out',
+        onComplete: () => el.classList.add('visible'),
         scrollTrigger: {
           trigger: el,
           start: 'top 85%',
-          toggleActions: 'play none none reverse'
+          toggleActions: 'play none none reverse',
+          invalidateOnRefresh: true
         }
       }
     );
   });
+
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+  window.setTimeout(() => ScrollTrigger.refresh(), 500);
 
   // Pipeline steps staggered reveal
   if (document.querySelector('.pipeline')) {

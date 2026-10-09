@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="ZenAlert - Resilient Environmental AI. Early-warning platform for forest fires, gas leaks and air pollution." />
-  
+
   <title>ZenAlert | Resilient Environmental AI</title>
   
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.json" />
   
   <!-- CSS -->
-  <link rel="stylesheet" href="css/tokens.css" />
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/components.css" />
-  <link rel="stylesheet" href="css/utils.css" />
-  <link rel="stylesheet" href="css/landing.css" />
+  <link rel="stylesheet" href="css/tokens.css?v=2" />
+  <link rel="stylesheet" href="css/base.css?v=2" />
+  <link rel="stylesheet" href="css/components.css?v=2" />
+  <link rel="stylesheet" href="css/utils.css?v=2" />
+  <link rel="stylesheet" href="css/landing.css?v=10" />
 
   <!-- GSAP & ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -36,7 +36,7 @@
   </script>
   
   <!-- App JS -->
-  <script type="module" src="js/landing.js"></script>
+  <script type="module" src="js/landing.js?v=10"></script>
   <script type="module">
     import { SensorNode3D } from './js/3d-model.js';
     
@@ -122,80 +122,91 @@
 
   <!-- Navigation -->
   <nav class="landing-nav" style="border-bottom: 1px solid var(--border-default); background: var(--bg-glass-strong);">
-    <a href="/" class="nav-brand">
+    <a href="#top" class="nav-brand" aria-label="ZenAlert home">
       <img src="assets/logo-mark.svg" alt="ZenAlert Logo" class="nav-brand-logo" />
       <span class="nav-brand-name">ZenAlert</span>
     </a>
     
     <ul class="nav-links">
-      <li><a href="#hardware">Hardware</a></li>
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#hazards">Hazards</a></li>
+      <li><a href="#hardware" data-li18n="nav_hw">Hardware</a></li>
+      <li><a href="#architecture-deep-dive" data-li18n="nav_arch">Architecture</a></li>
+      <li><a href="#hazards" data-li18n="nav_haz">Hazards</a></li>
     </ul>
 
     <div class="nav-actions">
-      <button class="nav-lang-toggle" aria-label="Toggle language">EN | हिं</button>
+      <button class="nav-lang-toggle" aria-label="Switch to Hindi" aria-pressed="false"><span class="lang-active">EN</span><span aria-hidden="true"> | </span><span>हिं</span></button>
       <a href="app.html" class="nav-cta">
-        Open dashboard
+        <span data-li18n="nav_dash">Open dashboard</span>
         <i data-lucide="arrow-right"></i>
       </a>
     </div>
   </nav>
 
   <main id="main">
+    <span id="top" class="top-anchor" aria-hidden="true"></span>
+    <button class="back-to-top" type="button" aria-label="Back to top" aria-hidden="true">
+      <i data-lucide="arrow-up"></i>
+      <span>Top</span>
+    </button>
     
     <!-- Hero / Hardware Explorer Section -->
-    <section class="min-h-screen pt-24 pb-12 flex flex-col relative" id="hardware">
-      <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(circle at 50% 50%, rgba(94,234,198,0.05) 0%, transparent 60%);"></div>
+    <section class="min-h-screen pt-40 pb-20 flex flex-col relative" id="hardware">
+      <!-- Premium ambient glow -->
+      <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 50% at 50% 20%, rgba(94,234,198,0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 30% 70%, rgba(94,234,198,0.04) 0%, transparent 50%), radial-gradient(ellipse 50% 30% at 80% 50%, rgba(59,130,246,0.03) 0%, transparent 50%);"></div>
       
-      <div class="text-center z-10 px-6 mb-8 reveal">
-        <div class="text-xs text-accent uppercase tracking-widest font-mono mb-4">GEN ERA</div>
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-semi tracking-tight mb-6">
-          AI-POWERED LOCALIZED<br/>EARLY-WARNING SYSTEM
+      <div class="hero-intro text-center z-10 px-6 mb-16">
+        <div class="inline-flex items-center gap-2 text-xs text-accent uppercase tracking-widest font-mono mb-6 px-4 py-1.5 bg-accent/5 border border-accent/20 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span> <span data-li18n="hero_badge">SIH 2026 · Problem Statement 26178</span></div>
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-semi tracking-tight mb-5" style="line-height:1.1;">
+          <span data-li18n="hero_title_1">Resilient Environmental</span><br/><span class="text-accent" data-li18n="hero_title_2">Early-Warning</span><span data-li18n="hero_title_3"> System</span>
         </h1>
-        <p class="text-xl text-secondary max-w-2xl mx-auto mb-6">
-          Sense. Identify. Verify. Locate. <span class="text-primary font-medium">Alert Earlier.</span>
+        <p class="text-lg text-secondary max-w-xl mx-auto mb-8" style="line-height:1.7;" data-li18n="hero_desc">
+          Multi-sensor IoT nodes with edge AI inference detect forest fires, gas leaks, and air quality hazards — alerting responders in under 2 seconds, even offline.
         </p>
-        <div class="flex items-center justify-center gap-4">
-          <div class="flex items-center gap-2 text-sm bg-surface px-4 py-2 rounded-full border border-default"><span class="status-dot green pulse"></span> ACTIVE NODES: <strong class="mono">14</strong></div>
-          <div class="flex items-center gap-2 text-sm bg-surface px-4 py-2 rounded-full border border-default"><i data-lucide="cpu" class="w-4 h-4 text-accent"></i> EDGE AI: <strong class="mono">ONLINE</strong></div>
+        <div class="flex items-center justify-center gap-3 mb-8">
+          <a href="app.html" class="nav-cta" style="padding: 12px 28px; font-size: 15px;"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-li18n="hero_cta">Open Live Dashboard</span></a>
+          <a href="#architecture-deep-dive" class="hero-secondary" style="padding: 11px 24px;" data-li18n="hero_cta2">View Architecture</a>
+        </div>
+        <div class="flex items-center justify-center gap-6 flex-wrap">
+          <div class="flex items-center gap-2 text-sm bg-surface/60 backdrop-blur px-4 py-2 rounded-full border border-default"><span class="status-dot green pulse"></span> <span class="text-muted" data-li18n="lbl_nodes">ACTIVE NODES:</span> <strong class="mono text-primary">14</strong></div>
+          <div class="flex items-center gap-2 text-sm bg-surface/60 backdrop-blur px-4 py-2 rounded-full border border-default"><i data-lucide="cpu" class="w-4 h-4 text-accent"></i> <span class="text-muted" data-li18n="lbl_edge">EDGE AI:</span> <strong class="mono text-primary">ONLINE</strong></div>
+          <div class="flex items-center gap-2 text-sm bg-surface/60 backdrop-blur px-4 py-2 rounded-full border border-default"><i data-lucide="zap" class="w-4 h-4 text-watch"></i> <span class="text-muted" data-li18n="lbl_latency">LATENCY:</span> <strong class="mono text-primary">1.3s</strong></div>
         </div>
       </div>
 
       <!-- 3D Prototype Viewer -->
-      <div class="flex-1 w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+      <div class="prototype-layout flex-1 w-full max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
         
         <!-- Left: Components Explorer -->
         <div class="lg:col-span-3 flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-          <div class="text-xs uppercase tracking-widest text-muted font-semi mb-2">Prototype Explorer</div>
+          <div class="text-xs uppercase tracking-widest text-muted font-semi mb-2" data-li18n="prototype_explorer">Prototype Explorer</div>
           
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="ESP32-S3">
             <div class="font-mono text-xs text-accent mb-1">01</div>
-            <div class="font-semi text-sm text-primary">ESP32-S3 Controller</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_esp32">ESP32-S3 Controller</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="IMX219 Camera">
             <div class="font-mono text-xs text-accent mb-1">02</div>
-            <div class="font-semi text-sm text-primary">IMX219 Camera Module</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_camera">IMX219 Camera Module</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="MQ135 Gas Sensor">
             <div class="font-mono text-xs text-accent mb-1">03</div>
-            <div class="font-semi text-sm text-primary">MQ135 Gas Sensor</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_mq135">MQ135 Gas Sensor</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="MQ2 Smoke Sensor">
             <div class="font-mono text-xs text-accent mb-1">04</div>
-            <div class="font-semi text-sm text-primary">MQ2 Smoke Sensor</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_mq2">MQ2 Smoke Sensor</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="GP2Y1010 PM2.5">
             <div class="font-mono text-xs text-accent mb-1">05</div>
-            <div class="font-semi text-sm text-primary">GP2Y1010 PM2.5</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_pm25">GP2Y1010 PM2.5</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="LoRa Antenna">
             <div class="font-mono text-xs text-accent mb-1">06</div>
-            <div class="font-semi text-sm text-primary">SX1278 LoRa Module</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_lora">SX1278 LoRa Module</div>
           </button>
           <button class="component-tile text-left p-3 bg-surface border border-default rounded-lg hover:border-accent transition-colors" data-comp="Solar Panel">
             <div class="font-mono text-xs text-accent mb-1">07</div>
-            <div class="font-semi text-sm text-primary">Solar Power System</div>
+            <div class="font-semi text-sm text-primary" data-li18n="comp_solar">Solar Power System</div>
           </button>
         </div>
 
@@ -206,17 +217,16 @@
             <div class="flex gap-2 pointer-events-auto">
               <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors" id="btnResetView">RESET</button>
               <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors active:bg-accent active:text-inverse" id="btnRotate">ROTATE</button>
-              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors" id="btnExplode">EXPLODED VIEW</button>
+              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono hover:bg-hover hover:border-accent transition-colors" id="btnExplode">EXPLODED</button>
             </div>
             <div class="flex gap-2 pointer-events-auto">
-              <button class="px-3 py-1 bg-accent text-inverse font-semi rounded text-xs font-mono">NODE</button>
-              <button class="px-3 py-1 bg-surface border border-default rounded text-xs font-mono opacity-50 cursor-not-allowed">GATEWAY</button>
+              <!-- Removed simulate button -->
             </div>
           </div>
 
           <!-- Telemetry Overlays -->
           <div class="absolute top-20 right-4 bg-surface/80 backdrop-blur border border-default p-3 rounded-lg text-xs font-mono text-primary pointer-events-none z-10">
-            <div class="text-[10px] text-muted mb-1 uppercase">Live Node Telemetry</div>
+            <div class="text-[10px] text-muted mb-1 uppercase" data-li18n="telemetry">Live Node Telemetry</div>
             <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>TEMP</span> <span>24.8 °C</span></div>
             <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>HUM</span> <span>61%</span></div>
             <div class="flex justify-between gap-4 py-1 border-b border-subtle"><span>PM2.5</span> <span>38 µg/m³</span></div>
@@ -245,9 +255,9 @@
     <section id="architecture" class="landing-section bg-elevated border-y border-default">
       <div class="max-w-[1200px] mx-auto px-6 py-20 reveal">
         <div class="text-center mb-16">
-          <div class="section-eyebrow">System Architecture</div>
-          <h2 class="section-heading">Offline-First Operational Intelligence</h2>
-          <p class="section-description mx-auto">
+          <div class="section-eyebrow" data-li18n="system_arch_eyebrow">System Architecture</div>
+          <h2 class="section-heading" data-li18n="system_arch_title">Offline-First Operational Intelligence</h2>
+          <p class="section-description mx-auto" data-li18n="system_arch_desc">
             ZenAlert operates independently of cloud connectivity. Local intelligence guarantees that even during total grid failure, field teams receive life-saving alerts.
           </p>
         </div>
@@ -257,35 +267,35 @@
           <div class="arch-flow-node">
             <div class="arch-icon"><i data-lucide="radio"></i></div>
             <div class="arch-title">SENSORS</div>
-            <div class="arch-desc text-xs text-muted">Continuous field telemetry</div>
+            <div class="arch-desc text-xs text-muted" data-li18n="flow_sensors_desc">Continuous field telemetry</div>
           </div>
           <div class="arch-line"><div class="arch-particle"></div></div>
           
           <div class="arch-flow-node">
             <div class="arch-icon"><i data-lucide="cpu"></i></div>
             <div class="arch-title">ESP32-S3</div>
-            <div class="arch-desc text-xs text-muted">Sensor aggregation</div>
+            <div class="arch-desc text-xs text-muted" data-li18n="flow_esp32_desc">Sensor aggregation</div>
           </div>
           <div class="arch-line"><div class="arch-particle" style="animation-delay: 0.5s"></div></div>
           
           <div class="arch-flow-node" style="border-color: var(--accent);">
             <div class="arch-icon text-accent"><i data-lucide="box"></i></div>
             <div class="arch-title">JETSON EDGE</div>
-            <div class="arch-desc text-xs text-muted">Vision AI & Routing</div>
+            <div class="arch-desc text-xs text-muted" data-li18n="flow_jetson_desc">Vision AI & Routing</div>
           </div>
           <div class="arch-line"><div class="arch-particle" style="animation-delay: 1s"></div></div>
           
           <div class="arch-flow-node">
             <div class="arch-icon"><i data-lucide="map"></i></div>
             <div class="arch-title">GIS SYSTEM</div>
-            <div class="arch-desc text-xs text-muted">Live mapping backend</div>
+            <div class="arch-desc text-xs text-muted" data-li18n="flow_gis_desc">Live mapping backend</div>
           </div>
           <div class="arch-line"><div class="arch-particle" style="animation-delay: 1.5s"></div></div>
           
           <div class="arch-flow-node" style="border-color: var(--severity-critical);">
             <div class="arch-icon text-critical"><i data-lucide="bell-ring"></i></div>
             <div class="arch-title">ALERT</div>
-            <div class="arch-desc text-xs text-muted">Siren / SMS Broadcast</div>
+            <div class="arch-desc text-xs text-muted" data-li18n="flow_alert_desc">Siren / SMS Broadcast</div>
           </div>
         </div>
 
@@ -298,6 +308,13 @@
           .arch-particle { position: absolute; top: -3px; left: 0; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); animation: flowParticle 2s linear infinite; }
           @keyframes flowParticle { 0% { left: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
           
+          @media (min-width: 769px) and (max-width: 1100px) {
+            .arch-flow-node { width: 116px; height: 116px; }
+            .arch-line { min-width: 20px; }
+            .arch-title { font-size: 10px; }
+            .arch-desc { font-size: 11px; text-align: center; }
+          }
+
           @media (max-width: 768px) {
             .arch-flow { flex-direction: column; gap: 2rem; }
             .arch-line { width: 2px; height: 40px; min-width: auto; }
@@ -310,15 +327,165 @@
           <div class="p-6 bg-surface border border-default rounded-2xl flex items-start gap-4">
             <div class="p-3 bg-bg-elevated rounded-lg"><i data-lucide="wifi-off" class="text-accent"></i></div>
             <div>
-              <h4 class="text-lg font-semi mb-2">Offline-First Operation</h4>
-              <p class="text-sm text-secondary">In the event of a telecom blackout, the local LoRa mesh and edge AI continue analyzing threats and triggering localized sirens.</p>
+              <h4 class="text-lg font-semi mb-2" data-li18n="feat_offline">Offline-First Operation</h4>
+              <p class="text-sm text-secondary" data-li18n="feat_offline_desc">In the event of a telecom blackout, the local LoRa mesh and edge AI continue analyzing threats and triggering localized sirens.</p>
             </div>
           </div>
           <div class="p-6 bg-surface border border-default rounded-2xl flex items-start gap-4">
             <div class="p-3 bg-bg-elevated rounded-lg"><i data-lucide="battery-charging" class="text-accent"></i></div>
             <div>
-              <h4 class="text-lg font-semi mb-2">Solar Power Management</h4>
-              <p class="text-sm text-secondary">Solar panels and MPPT charge controllers ensure continuous operation, dynamically scaling power draw based on risk levels.</p>
+              <h4 class="text-lg font-semi mb-2" data-li18n="feat_solar">Solar Power Management</h4>
+              <p class="text-sm text-secondary" data-li18n="feat_solar_desc">Solar panels and MPPT charge controllers ensure continuous operation, dynamically scaling power draw based on risk levels.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 text-center">
+          <a href="#architecture-deep-dive" class="technical-architecture-cta btn btn-primary bg-surface text-primary border-default hover:bg-hover" data-li18n="technical_cta">
+            View Complete Technical Architecture &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Deep Dive (Moved from architecture.html) -->
+    <section id="architecture-deep-dive" class="landing-section py-24 bg-bg-deepest relative overflow-hidden border-t border-b border-subtle">
+      <!-- Premium abstract mesh background without grid -->
+      <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[120px] pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none transform -translate-x-1/3 translate-y-1/3"></div>
+      <div class="absolute top-1/2 left-1/2 w-[1000px] h-[1000px] bg-[var(--severity-high)]/5 rounded-full blur-[150px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2"></div>
+
+      <!-- Micro-texture to prevent banding -->
+      <div class="architecture-noise absolute inset-0 pointer-events-none" aria-hidden="true" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+      
+      <div class="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 reveal">
+          <div class="section-eyebrow" data-li18n="arch_eyebrow">SIH26178 Technical Approach</div>
+          <h2 class="section-heading" data-li18n="arch_title">How ZenAlert Works</h2>
+          <p class="section-description mx-auto" data-li18n="arch_desc">From physical sensor readings to verified incident alerts — a four-stage pipeline with zero cloud dependency.</p>
+        </div>
+
+        <div class="space-y-12">
+          <!-- Step 1 -->
+          <div class="architecture-step-card grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal p-8 rounded-3xl shadow-2xl transition-all duration-500">
+            <div>
+              <div class="text-accent font-mono text-sm mb-3 flex items-center gap-2"><span class="w-8 h-px bg-accent/50"></span> 01</div>
+              <h3 class="architecture-step-title text-3xl font-semi mb-4" data-li18n="step1_title">Multi-Sensor Data Ingestion</h3>
+              <p class="architecture-step-copy mb-4" data-li18n="step1_desc">ESP32-S3 nodes collect continuous analog and digital streams from an array of environmental sensors (MQ135, MQ2, DHT11, GP2Y1010). Data is buffered locally, filtered for noise, and packaged into lightweight binary payloads for efficient transmission.</p>
+              <ul class="architecture-step-list list-disc pl-5 text-sm space-y-2">
+                <li data-li18n="step1_b1">Dynamic sampling rates based on battery SOC.</li>
+                <li data-li18n="step1_b2">Local calibration offsets applied.</li>
+                <li data-li18n="step1_b3">Image capture (IMX219) triggered only upon sensor anomaly.</li>
+              </ul>
+            </div>
+            <div class="architecture-visual relative bg-deepest/50 rounded-2xl border border-subtle/30 overflow-hidden p-6 h-[250px] flex items-center justify-center shadow-inner backdrop-blur-sm">
+              <div class="architecture-visual-glow absolute inset-0" aria-hidden="true"></div>
+              <div class="w-full max-w-sm space-y-3 relative z-10">
+                <div class="flex items-center gap-2 text-accent font-mono text-xs mb-4 uppercase tracking-widest"><i data-lucide="cpu" class="w-4 h-4"></i> ESP32-S3 Buffer</div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2"><div class="w-2 h-2 bg-critical rounded-full animate-pulse"></div> MQ2_ADC</span> <span class="text-critical font-bold">840</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2"><div class="w-2 h-2 bg-watch rounded-full"></div> PM25_UG</span> <span class="text-watch font-bold">125</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-accent/60 rounded-lg text-sm font-mono backdrop-blur-md" style="box-shadow: 0 0 15px rgba(94,234,198,0.15);">
+                  <span class="text-secondary flex items-center gap-2"><i data-lucide="camera" class="w-3 h-3 text-accent"></i> CAM_TRIG</span> <span class="text-accent font-bold">TRUE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="architecture-step-card grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal p-8 rounded-3xl shadow-2xl transition-all duration-500 flex-col-reverse md:flex-row">
+            <div class="architecture-visual architecture-visual-critical relative bg-deepest/50 rounded-2xl border border-subtle/30 overflow-hidden p-6 h-[250px] flex items-center justify-center shadow-inner backdrop-blur-sm">
+              <div class="architecture-visual-glow absolute inset-0" aria-hidden="true"></div>
+              <div class="w-full max-w-sm space-y-3 relative z-10">
+                <div class="flex items-center gap-2 text-primary font-mono text-xs mb-4 uppercase tracking-widest"><i data-lucide="box" class="w-4 h-4"></i> JETSON NANO INFERENCE</div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">YOLO_CONF</span> <span class="text-critical font-bold">0.94</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">LSTM_DRIFT</span> <span class="text-secondary">0.87</span>
+                </div>
+                <div class="w-full h-px bg-subtle/50 my-2"></div>
+                <div class="flex justify-between items-center p-3 border border-critical/50 rounded-lg text-sm font-mono backdrop-blur-md architecture-status-critical">
+                  <span class="text-critical font-bold flex items-center gap-2"><i data-lucide="zap" class="w-3 h-3"></i> FUSION_SCORE</span> <span class="text-critical font-bold text-lg">0.91</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="text-primary font-mono text-sm mb-3 flex items-center gap-2"><span class="w-8 h-px bg-primary/50"></span> 02</div>
+              <h3 class="architecture-step-title text-3xl font-semi mb-4" data-li18n="step2_title">Edge Inference & Multi-Modal Verification</h3>
+              <p class="architecture-step-copy mb-4" data-li18n="step2_desc">NVIDIA Jetson Nano acts as the local cluster gateway. It runs YOLOv8 for visual object detection (fire/smoke) and a CNN-LSTM model for sensor time-series forecasting. The results are fused into a single confidence score.</p>
+              <ul class="list-disc pl-5 text-sm text-secondary space-y-2">
+                <li data-li18n="step2_b1">Zero cloud dependency for inference.</li>
+                <li data-li18n="step2_b2">Multi-modal fusion prevents false positives.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="architecture-step-card grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal p-8 rounded-3xl shadow-2xl transition-all duration-500">
+            <div>
+              <div class="text-normal font-mono text-sm mb-3 flex items-center gap-2"><span class="w-8 h-px bg-normal/50"></span> 03</div>
+              <h3 class="architecture-step-title text-3xl font-semi mb-4" data-li18n="step3_title">Long-Range Off-Grid Transmission</h3>
+              <p class="architecture-step-copy mb-4" data-li18n="step3_desc">Using LoRa (SX1278) modules, sensor nodes transmit data over a multi-kilometer radius to the edge gateway without cellular or Wi-Fi infrastructure. A self-healing mesh topology ensures packets reach the gateway even if a node goes offline.</p>
+            </div>
+            <div class="architecture-visual architecture-visual-neutral relative bg-deepest/50 rounded-2xl border border-subtle/30 overflow-hidden p-6 h-[250px] flex items-center justify-center shadow-inner backdrop-blur-sm">
+              <div class="architecture-visual-glow absolute inset-0" aria-hidden="true"></div>
+              
+              <!-- LoRa Wave SVG -->
+              <div class="architecture-wave absolute inset-0 flex items-center justify-center pointer-events-none">
+                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="1" class="animate-ping" style="animation-duration: 3s;" />
+                  <circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="1" class="animate-ping" style="animation-duration: 3s; animation-delay: 1s;" />
+                  <circle cx="100" cy="100" r="100" stroke="currentColor" stroke-width="1" class="animate-ping" style="animation-duration: 3s; animation-delay: 2s;" />
+                </svg>
+              </div>
+
+              <div class="w-full max-w-sm space-y-3 relative z-10">
+                <div class="flex items-center gap-2 text-normal font-mono text-xs mb-4 uppercase tracking-widest"><i data-lucide="wifi" class="w-4 h-4"></i> SX1278 TELEMETRY</div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">FREQ</span> <span>433 MHz</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">SF</span> <span>9</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">RSSI</span> <span class="text-normal font-bold">-71 dBm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="architecture-step-card grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal p-8 rounded-3xl shadow-2xl transition-all duration-500 flex-col-reverse md:flex-row">
+            <div class="architecture-visual architecture-visual-critical relative bg-deepest/50 rounded-2xl border border-subtle/30 overflow-hidden p-6 h-[250px] flex items-center justify-center shadow-inner backdrop-blur-sm">
+              <div class="architecture-visual-glow absolute inset-0" aria-hidden="true"></div>
+              
+              <!-- Map Ping SVG -->
+              <div class="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
+                <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="100" cy="100" r="8" fill="var(--severity-critical)" />
+                  <circle cx="100" cy="100" r="24" stroke="var(--severity-critical)" stroke-width="2" stroke-dasharray="4 4" class="animate-[spin_4s_linear_infinite]" />
+                  <circle cx="100" cy="100" r="60" stroke="var(--severity-critical)" stroke-width="1" class="animate-ping" style="animation-duration: 2s;" />
+                </svg>
+              </div>
+
+              <div class="w-full max-w-sm space-y-3 relative z-10">
+                <div class="flex items-center gap-2 text-critical font-mono text-xs mb-4 uppercase tracking-widest"><i data-lucide="bell-ring" class="w-4 h-4"></i> GIS DISPATCH</div>
+                <div class="flex justify-between items-center p-3 bg-surface/80 border border-subtle/50 rounded-lg text-sm font-mono backdrop-blur-md">
+                  <span class="text-secondary flex items-center gap-2">LAT_LNG</span> <span>29.38, 79.52</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-critical/90 border border-critical/50 rounded-lg text-sm font-mono text-bg-deepest backdrop-blur-md architecture-status-critical">
+                  <span class="font-bold flex items-center gap-2"><i data-lucide="radio-receiver" class="w-3 h-3"></i> ACTION</span> <span class="font-bold tracking-widest">BROADCAST</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="text-accent font-mono text-sm mb-2">04</div>
+              <h3 class="architecture-step-title text-3xl font-semi mb-4" data-li18n="step4_title">Alert Generation & Mapping</h3>
+              <p class="architecture-step-copy mb-4" data-li18n="step4_desc">Verified incidents are pushed via FastAPI to the MapLibre GL JS dashboard. District authorities see real-time GIS mapping of the threat radius and can instantly dispatch SMS, Push, and local Siren alerts.</p>
             </div>
           </div>
         </div>
@@ -329,8 +496,8 @@
     <section id="hazards" class="landing-section py-20">
       <div class="max-w-[1200px] mx-auto px-6 reveal">
         <div class="text-center mb-16">
-          <div class="section-eyebrow">Threat Intelligence</div>
-          <h2 class="section-heading">Multi-Threat Environmental Awareness</h2>
+          <div class="section-eyebrow" data-li18n="hazards_eyebrow">Threat Intelligence</div>
+          <h2 class="section-heading" data-li18n="hazards_title">Multi-Threat Environmental Awareness</h2>
         </div>
         
         <div class="hazard-grid">
@@ -338,8 +505,8 @@
           <div class="hazard-card fire p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-b from-severity-critical/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="hazard-icon text-critical mb-4"><i data-lucide="flame" class="w-8 h-8"></i></div>
-            <h3 class="hazard-title text-xl font-semi mb-2">Forest Fire</h3>
-            <p class="hazard-desc text-sm text-secondary mb-6">
+            <h3 class="hazard-title text-xl font-semi mb-2" data-li18n="haz_fire">Forest Fire</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6" data-li18n="hazard_fire_desc">
               Early detection of localized combustion and smoke plumes before uncontrolled spread, utilizing thermal proxies and visual AI.
             </p>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
@@ -358,8 +525,8 @@
           <div class="hazard-card gas p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-b from-severity-watch/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="hazard-icon text-watch mb-4"><i data-lucide="wind" class="w-8 h-8"></i></div>
-            <h3 class="hazard-title text-xl font-semi mb-2">Gas Leakage</h3>
-            <p class="hazard-desc text-sm text-secondary mb-6">
+            <h3 class="hazard-title text-xl font-semi mb-2" data-li18n="haz_gas">Gas Leakage</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6" data-li18n="hazard_gas_desc">
               Continuous monitoring for combustible gases (LPG, Methane, Smoke) in sensitive roadside or infrastructure corridors.
             </p>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
@@ -378,8 +545,8 @@
           <div class="hazard-card air p-6 bg-surface border border-default rounded-2xl transition-colors hover:border-border-strong relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-b from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div class="hazard-icon text-accent mb-4"><i data-lucide="cloud-fog" class="w-8 h-8"></i></div>
-            <h3 class="hazard-title text-xl font-semi mb-2">Air Pollution</h3>
-            <p class="hazard-desc text-sm text-secondary mb-6">
+            <h3 class="hazard-title text-xl font-semi mb-2" data-li18n="haz_air">Air Pollution</h3>
+            <p class="hazard-desc text-sm text-secondary mb-6" data-li18n="hazard_air_desc">
               Tracking particulate matter (PM2.5 proxy) and overall air quality indices to identify harmful environmental shifts.
             </p>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-subtle">
@@ -405,43 +572,66 @@
 
     <!-- CTA -->
     <section class="cta-section reveal py-24 text-center border-t border-subtle bg-elevated">
-      <h2 class="text-3xl font-heading font-semi mb-4">Command the network.</h2>
-      <p class="text-secondary mb-8 max-w-lg mx-auto">
+      <h2 class="text-3xl font-heading font-semi mb-4" data-li18n="cta_title">Command the network.</h2>
+      <p class="text-secondary mb-8 max-w-lg mx-auto" data-li18n="cta_desc">
         Access the live operational dashboard to view live telemetry, manage the GIS threat map, and dispatch alerts.
       </p>
       <a href="app.html" class="nav-cta mx-auto flex items-center justify-center gap-2" style="font-size: var(--text-md); padding: var(--sp-4) var(--sp-8); display: inline-flex;">
-        Launch Dashboard Interface
+        <span data-li18n="cta_button">Launch Dashboard Interface</span>
         <i data-lucide="arrow-right"></i>
       </a>
     </section>
   </main>
 
-  <footer class="landing-footer py-12 px-6 border-t border-default bg-base text-sm">
-    <div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between gap-8">
-      <div class="footer-brand">
-        <div class="flex items-center gap-2 font-heading font-bold text-lg mb-1">
-          <img src="assets/logo-mark.svg" alt="" class="w-5 h-5" />
-          ZenAlert
+  <footer class="landing-footer pt-20 pb-10 px-6 bg-bg-deepest border-t border-subtle text-sm relative overflow-hidden">
+    <!-- Background visual -->
+    <div class="absolute inset-0 pointer-events-none opacity-20" style="background: radial-gradient(circle at 50% 100%, rgba(94,234,198,0.1) 0%, transparent 70%);"></div>
+    
+    <div class="max-w-[1200px] mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+      
+      <div class="lg:col-span-6">
+        <div class="flex items-center gap-3 font-heading font-bold text-xl mb-4">
+          <img src="assets/logo-mark.svg" alt="ZenAlert Logo" class="w-8 h-8 drop-shadow-[0_0_10px_rgba(94,234,198,0.5)]" />
+          <span class="tracking-tight">ZenAlert</span>
         </div>
-        <div class="text-muted">Resilient Environmental AI</div>
+        <p class="text-secondary max-w-sm leading-relaxed mb-6">
+          <span data-li18n="footer_tagline_long">Resilient Environmental AI. Building localized, offline-first early warning systems for the communities most at risk from ecological disasters.</span>
+        </p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-8 h-8 rounded-full bg-surface border border-default flex items-center justify-center hover:border-accent hover:text-accent transition-colors"><i data-lucide="github" class="w-4 h-4"></i></a>
+          <a href="#" class="w-8 h-8 rounded-full bg-surface border border-default flex items-center justify-center hover:border-accent hover:text-accent transition-colors"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+          <a href="#" class="w-8 h-8 rounded-full bg-surface border border-default flex items-center justify-center hover:border-accent hover:text-accent transition-colors"><i data-lucide="mail" class="w-4 h-4"></i></a>
+        </div>
       </div>
       
-      <div class="flex gap-16">
-        <div class="flex flex-col gap-2">
-          <h5 class="text-primary font-semi mb-2 uppercase text-xs tracking-wider">Platform</h5>
-          <a href="app.html" class="text-secondary hover:text-accent transition-colors">Live Dashboard</a>
-          <a href="public-alert.html" class="text-secondary hover:text-accent transition-colors">Public Alerts</a>
-        </div>
-        <div class="flex flex-col gap-2">
-          <h5 class="text-primary font-semi mb-2 uppercase text-xs tracking-wider">Project</h5>
-          <span class="text-secondary">SIH26178</span>
-          <span class="text-secondary">GEN ERA Team</span>
-        </div>
+      <div class="lg:col-span-3">
+        <h5 class="text-primary font-semi mb-6 uppercase text-xs tracking-widest" data-li18n="footer_project">Project</h5>
+        <ul class="flex flex-col gap-4 p-0 m-0" style="list-style: none;">
+          <li class="text-secondary flex items-center gap-2"><i data-lucide="shield-check" class="w-4 h-4 text-watch"></i> <span data-li18n="footer_team">GEN ERA Team</span></li>
+          <li class="text-secondary flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-muted"></i> <span data-li18n="footer_location">Bhowali, Nainital</span></li>
+          <li class="text-secondary flex items-center gap-2 mt-2">
+            <span class="px-2 py-1 bg-surface border border-default rounded text-[10px] font-mono" data-li18n="footer_license">MIT LICENSE</span>
+          </li>
+        </ul>
       </div>
+
+      <div class="lg:col-span-3">
+        <h5 class="text-primary font-semi mb-6 uppercase text-xs tracking-widest" data-li18n="footer_context">Context</h5>
+        <ul class="flex flex-col gap-4 p-0 m-0" style="list-style: none;">
+          <li class="text-secondary" data-li18n="footer_sih">SIH 2026 · Problem Statement 26178</li>
+          <li class="text-secondary" data-li18n="footer_tagline">Offline-first environmental early warning.</li>
+        </ul>
+      </div>
+      
     </div>
-    <div class="max-w-[1200px] mx-auto mt-12 pt-6 border-t border-subtle text-muted flex justify-between">
-      <span>&copy; 2026 ZenAlert Team. All rights reserved.</span>
-      <span>Built for local response teams.</span>
+    
+    <div class="max-w-[1200px] mx-auto pt-8 border-t border-subtle flex flex-col md:flex-row justify-between items-center gap-4 relative z-10 text-xs text-muted">
+      <div class="flex items-center gap-2">
+        <span data-li18n="footer_copyright">&copy; 2026 ZenAlert. All rights reserved.</span>
+        <span class="w-1 h-1 rounded-full bg-subtle"></span>
+        <span data-li18n="footer_built">Built for local response teams.</span>
+      </div>
+      <div class="text-muted" data-li18n="footer_location_short">Bhowali · Nainital</div>
     </div>
   </footer>
 

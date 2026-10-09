@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Fire-Detection Prototype | ZenAlert</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/tokens.css?v=2" />
+  <link rel="stylesheet" href="css/base.css?v=2" />
+  <link rel="stylesheet" href="css/components.css?v=2" />
+  <link rel="stylesheet" href="css/utils.css?v=2" />
+  
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --stage-safe: var(--severity-normal);
+      --stage-warn: var(--severity-high);
+      --stage-crit: var(--severity-critical);
+    }
+    
+    .sim-header {
+      background: var(--bg-deepest);
+      border-bottom: 1px solid var(--border-subtle);
+      min-height: 72px;
+      padding: 12px clamp(16px, 3vw, 32px);
+    }
+    .sim-header-inner {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .sim-eyebrow {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: var(--weight-bold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .sim-title {
+      margin-top: 3px;
+      color: var(--text-primary);
+      font-family: var(--font-heading);
+      font-size: clamp(18px, 2vw, 24px);
+      font-weight: var(--weight-bold);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .sim-subtitle {
+      margin-top: 4px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+    
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      min-height: calc(100vh - 76px);
+      min-width: 0;
+    }
+
+    .sim-main {
+      position: relative;
+      background: radial-gradient(circle at center, var(--bg-surface) 0%, var(--bg-deepest) 100%);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+    
+    .sim-3d-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+    }
+
+    .sim-sidebar {
+      background: var(--bg-base);
+      border-left: 1px solid var(--border-default);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: clamp(18px, 2.5vw, 28px);
+      min-width: 0;
+    }
+
+    /* Pipeline */
+    .pipeline-container {
+      position: absolute;
+      bottom: var(--sp-6);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-glass-strong);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--sp-4) var(--sp-8);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      box-shadow: var(--shadow-2xl);
+      z-index: 20;
+    }
+    .pipe-node {
+      padding: var(--sp-2) var(--sp-4);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: var(--weight-bold);
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+    }
+    .pipe-node.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 15px rgba(94, 234, 198, 0.2);
+    }
+    .pipe-node.warn {
+      background: var(--severity-high-bg);
+      border-color: var(--severity-high);
+      color: var(--severity-high);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+    }
+    .pipe-node.crit {
+      background: var(--severity-critical-bg);
+      border-color: var(--severity-critical);
+      color: var(--severity-critical);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    }
+    .pipe-arrow {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* OLED Overlay */
+    .oled-display {
+      position: absolute;
+      top: var(--sp-6);
+      right: var(--sp-6);
+      background: #000;
+      border: 2px solid #333;
+      border-radius: var(--radius-md);
+      padding: var(--sp-4);
+      width: 220px;
+      font-family: 'Courier New', Courier, monospace;
+      color: #0ff;
+      text-shadow: 0 0 5px #0ff;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .oled-display.warn { color: #fa0; text-shadow: 0 0 5px #fa0; }
+    .oled-display.crit { color: #f00; text-shadow: 0 0 5px #f00; }
+    
+    /* Sensor Bars */
+    .sensor-input {
+      margin-bottom: var(--sp-5);
+    }
+    .sensor-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--sp-2);
+      font-size: var(--text-sm);
+    }
+    .sensor-track {
+      height: 8px;
+      background: var(--bg-deepest);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .sensor-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.2s linear, background-color 0.3s;
+    }
+    .sensor-threshold {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--text-muted);
+      z-index: 2;
+    }
+
+    .sim-action {
+      min-height: 40px;
+      padding: 9px 14px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: var(--weight-bold);
+      letter-spacing: 0.04em;
+      transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+    }
+    .sim-action:hover,
+    .sim-action:focus-visible {
+      border-color: var(--accent);
+      color: var(--text-primary);
+      outline: none;
+    }
+    .sim-action.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--text-inverse);
+    }
+    .sim-action.danger {
+      border-color: var(--severity-critical);
+      color: var(--severity-critical);
+    }
+    .sim-action.danger:hover,
+    .sim-action.danger:focus-visible,
+    .sim-action.danger.active {
+      background: var(--severity-critical);
+      color: #fff;
+    }
+    .sim-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    
+    @media (max-width: 1024px) {
+      body { overflow: auto; }
+      .sim-layout { grid-template-columns: 1fr; min-height: 0; }
+      .sim-main { min-height: min(660px, 68vh); }
+      .sim-3d-container { min-height: 420px; }
+      .sim-sidebar { border-left: 0; border-top: 1px solid var(--border-default); }
+      .pipeline-container { flex-wrap: wrap; justify-content: center; width: min(92%, 760px); }
+    }
+
+    @media (max-width: 600px) {
+      .sim-header {
+        min-height: auto;
+        padding: 14px 16px;
+      }
+      .sim-eyebrow { font-size: 9px; }
+      .sim-title { font-size: 18px; }
+      .sim-subtitle {
+        max-width: 245px;
+        margin-top: 6px;
+        font-size: 9px;
+        line-height: 1.45;
+      }
+      .sim-main { min-height: 510px; }
+      .sim-3d-container { min-height: 360px; }
+      .sim-main svg { max-width: 100%; height: auto; }
+      .oled-display {
+        top: 14px;
+        right: 14px;
+        width: 178px;
+        padding: 10px;
+        font-size: 10px;
+      }
+      .pipeline-container {
+        bottom: 14px;
+        gap: 5px;
+        padding: 10px;
+      }
+      .pipe-node { padding: 6px 8px; font-size: 9px; }
+      .pipe-arrow { font-size: 10px; }
+      .sim-sidebar { padding: 18px 16px 28px; }
+      .sim-controls { grid-template-columns: 1fr; }
+      .sim-action { width: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-base">
+
+  <!-- Header -->
+  <header class="sim-header">
+    <div class="sim-header-inner">
+      <div class="sim-eyebrow">ZenAlert · Sensor Node Lab</div>
+      <h1 class="sim-title">Fire Detection Prototype</h1>
+      <p class="sim-subtitle">Physical sensing → threshold engine → camera verification → fusion → local alarm → LoRa</p>
+    </div>
+  </header>
+
+  <div class="sim-layout">
+    
+    <!-- 3D & Pipeline -->
+    <main class="sim-main">
+      <div id="sim3d" class="sim-3d-container"></div>
+      
+      <!-- OLED Overlay -->
+      <div id="oledScreen" class="oled-display">
+        <div class="font-bold text-center border-b border-gray-700 pb-2 mb-2" id="oledTitle">🟢 SAFE</div>
+        <div class="text-xs space-y-1">
+          <div class="flex justify-between"><span>TEMP:</span><span id="oledTemp">24.8°C</span></div>
+          <div class="flex justify-between"><span>HUM :</span><span id="oledHum">61%</span></div>
+          <div class="flex justify-between"><span>PM2.5:</span><span id="oledPm">38</span></div>
+          <div class="flex justify-between"><span>GAS :</span><span id="oledGas">LOW</span></div>
+          <div class="flex justify-between mt-2 pt-2 border-t border-gray-700"><span>AI  :</span><span id="oledAi">--</span></div>
+        </div>
+      </div>
+
+      <!-- Live Pipeline Visualization -->
+      <div class="pipeline-container">
+        <div class="pipe-node active" id="pipe-sensors">SENSORS</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node active" id="pipe-esp32">ESP32</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-camera">CAMERA</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-fusion">FUSION</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-alarm">ALARM</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-lora">LoRa</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-gateway">GATEWAY</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-node" id="pipe-dashboard">DASHBOARD</div>
+      </div>
+    </main>
+
+    <!-- Controls Sidebar -->
+    <aside class="sim-sidebar">
+      
+      <div class="flex justify-between items-center mb-8 pb-4 border-b border-subtle">
+        <div class="text-xs font-mono text-muted uppercase tracking-widest">Node Status</div>
+        <div id="statusBadge" class="px-3 py-1 rounded-full bg-severity-normal-bg text-severity-normal border border-severity-normal-border text-xs font-bold uppercase tracking-widest shadow-[0_0_10px_rgba(34,197,94,0.2)] flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-severity-normal animate-pulse"></div> SAFE
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <div class="text-sm font-semi text-primary mb-4">Simulation Controls</div>
+        <div class="sim-controls">
+          <button id="btnNormal" class="sim-action active" type="button">NORMAL</button>
+          <button id="btnFireTest" class="sim-action danger" type="button">FIRE TEST</button>
+          <button id="btnClear" class="sim-action" type="button">CLEAR</button>
+        </div>
+      </div>
+
+      <div class="flex-1">
+        <div class="text-xs font-mono text-muted uppercase tracking-widest mb-6">Real Sensor Inputs</div>
+        
+        <!-- Temperature -->
+        <div class="sensor-input">
+          <div class="sensor-header">
+            <span class="text-secondary">Temperature</span>
+            <span class="font-mono font-bold text-primary" id="valTemp">24.8°C</span>
+          </div>
+          <div class="sensor-track">
+            <div class="sensor-threshold" style="left: 60%;"></div>
+            <div class="sensor-fill" id="fillTemp" style="width: 25%;"></div>
+          </div>
+          <div class="text-[10px] text-muted mt-1">Context threshold: 45°C</div>
+        </div>
+
+        <!-- MQ2 -->
+        <div class="sensor-input">
+          <div class="sensor-header">
+            <span class="text-secondary">MQ2 Smoke/Gas</span>
+            <span class="font-mono font-bold text-primary" id="valMq2">120</span>
+          </div>
+          <div class="sensor-track">
+            <div class="sensor-threshold" style="left: 45%;"></div>
+            <div class="sensor-threshold" style="left: 80%; background: var(--severity-critical);"></div>
+            <div class="sensor-fill" id="fillMq2" style="width: 15%;"></div>
+          </div>
+          <div class="text-[10px] text-muted mt-1">Triggers: Warning (350), Critical (650)</div>
+        </div>
+
+        <!-- PM2.5 -->
+        <div class="sensor-input">
+          <div class="sensor-header">
+            <span class="text-secondary">PM2.5 Proxy</span>
+            <span class="font-mono font-bold text-primary" id="valPm25">38 µg/m³</span>
+          </div>
+          <div class="sensor-track">
+            <div class="sensor-threshold" style="left: 50%;"></div>
+            <div class="sensor-fill" id="fillPm25" style="width: 15%;"></div>
+          </div>
+          <div class="text-[10px] text-muted mt-1">Threshold: 120 µg/m³</div>
+        </div>
+      </div>
+
+      <!-- Camera Feed (Hidden by default) -->
+      <div id="cameraPanel" class="mt-6 border border-subtle rounded-xl overflow-hidden hidden">
+        <div class="bg-surface px-4 py-2 text-xs font-mono font-bold text-primary border-b border-subtle flex justify-between">
+          <span><i data-lucide="camera" class="inline w-3 h-3 mr-1"></i> VISUAL VERIFICATION</span>
+          <span class="text-critical animate-pulse">REC</span>
+        </div>
+        <div class="relative bg-bg-deepest h-40 flex items-center justify-center overflow-hidden">
+          <div class="absolute inset-0 bg-severity-critical opacity-20 mix-blend-color-burn"></div>
+          <!-- Fake smoke effect using CSS -->
+          <div class="absolute inset-0 opacity-40 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC4wMSIgbnVtT2N0YXZlcz0iMyIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNmKSIgb3BhY2l0eT0iMC41Ii8+PC9zdmc+')] mix-blend-screen animate-[pulse_4s_ease-in-out_infinite]"></div>
+          
+          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+             <div class="flex justify-between items-end">
+               <div>
+                 <div class="text-critical text-xs font-bold">YOLOv8 CONFIDENCE</div>
+                 <div class="text-2xl font-mono font-bold text-white">91%</div>
+               </div>
+               <div class="border border-critical px-2 py-1 bg-critical/20 text-critical text-[10px] font-bold">FIRE / SMOKE</div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <script type="module" src="js/simulation.js?v=5"></script>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

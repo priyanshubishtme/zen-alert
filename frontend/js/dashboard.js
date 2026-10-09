@@ -3,13 +3,14 @@
  */
 
 import { initRouter, registerRoute, navigate } from './router.js';
-import * as api from './api.js';
+import * as api from './api.js?v=3';
 import { initMap, updateNodes, flyTo, toggleLayer } from './map.js';
 import * as charts from './charts.js';
+import { SensorNode3D } from './3d-model.js';
 
 let appState = {
   theme: localStorage.getItem('zenalert-theme') || 'dark',
-  lang: 'en',
+  lang: localStorage.getItem('zenalert-dashboard-lang') || 'en',
   incidents: [],
   nodes: [],
   overview: null,
@@ -29,6 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     mobileMenuBtn.addEventListener('click', () => {
       sidebar.classList.toggle('open');
     });
+    sidebar.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => sidebar.classList.remove('open'));
+    });
   }
 
   // Theme toggle
@@ -46,38 +50,148 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Language toggle stub
+  // Translation Dictionary
+  const i18n = {
+    en: {
+      nav_overview: "Overview", nav_map: "Live Threat Map", nav_network: "Sensor Network", 
+      nav_sensors: "Sensor Intelligence", nav_ai: "AI Verification", nav_incidents: "Incidents", 
+      nav_alerts: "Alerts", nav_analytics: "Analytics", nav_deployment: "Deployment", 
+      nav_prototype: "Prototype", nav_system: "System", nav_admin: "Admin",
+      overview_title: "Operations Overview", overview_desc: "Real-time command center for early-warning threat detection.",
+      deployment_title: "Deployment Strategy", deployment_desc: "Deployment Example: Nainital (Uttarakhand) - Scalability & Cost Analysis",
+      system_title: "System Health & Risks", system_desc: "Visual matrix of operational integrity, hardware health, and automated mitigations.",
+      prototype_title: "Sensor Node Prototype", prototype_desc: "Interactive 3D model and live fire-event simulation engine.",
+      nav_network_title: "Network Architecture", nav_network_desc: "System topology and offline-first state monitoring.",
+      map_title: "Environmental operations at a glance.", map_desc: "See verified signals, active incidents and network health in one shared operational view.",
+      btn_fire: "Simulate Fire Event", btn_gas: "Simulate Gas Leak",
+      kpi_nodes: "Nodes Online", kpi_incidents: "Open Incidents", kpi_threat: "Global Threat Level", kpi_activity: "Live Activity Feed",
+      table_id: "ID", table_type: "TYPE", table_zone: "ZONE", table_ai: "AI CONF", table_status: "STATUS",
+      status_online: "System Status", status_text: "Online",
+      offline_mode: "OFFLINE MODE · Attempting reconnection...",
+      ops_label: "Operations / Environmental Monitoring"
+      , admin_title: "Administration", admin_desc: "Maintain access, operating thresholds and readiness.",
+      admin_users: "Users & Roles", admin_thresholds: "Thresholds", admin_user: "User", admin_role: "Role",
+      admin_zone: "Zone", admin_2fa: "2FA", admin_confidence: "Critical Confidence Threshold",
+      admin_timeout: "Node Offline Timeout (mins)", admin_save: "Save Configuration",
+      system_compute: "Jetson Compute Load", system_peak: "Peak Inference",
+      system_mitigation: "Auto-Mitigation Active", system_mitigation_desc: "Event-triggered AI ensures YOLOv8 only runs when sensor thresholds (>150 AQI) are crossed, saving 80% idle compute.",
+      system_packet: "LoRa Packet Loss", system_canopy: "Canopy Interference", system_buffer: "Buffer Engaged",
+      system_buffer_desc: "Node-level SRAM buffering stores up to 48 hours of critical events until an ACK is received from the Jetson gateway.",
+      system_calibration: "Sensor Calibration",
+      system_topology_title: "Infrastructure Topology Health", topology_solar: "Solar Arrays", status_optimal: "Optimal",
+      topology_charge: "Average Charge Capacity", topology_generation: "Generation", topology_draw: "Draw",
+      topology_uplink: "Mesh Uplink", status_active: "Active", topology_latency: "Average Gateway Latency",
+      topology_signal: "Signal Strength", topology_type: "Topology", topology_vision: "Vision Models",
+      status_updating: "Updating", topology_weights: "Current YOLOv8 Weights", topology_accuracy: "Accuracy",
+      topology_next_sync: "Next Sync", topology_two_hours: "In 2 hrs", topology_api: "API Endpoints",
+      status_online_value: "Online", topology_uptime: "Gateway Uptime (30d)", topology_requests: "Requests",
+      topology_errors: "Errors"
+      , network_mesh_title: "Live Mesh Topology", network_offline_active: "Offline-First Mode Active",
+      network_offline_desc: "The network is currently operating autonomously. Critical threat verification is happening locally on the NVIDIA Jetson edge gateway. Alerts will be broadcasted via localized sirens until connection is restored.",
+      network_power_title: "Power System Visualization (Edge Gateway)", power_solar: "SOLAR PANEL",
+      power_controller: "CHARGE CONTROLLER", power_mppt: "MPPT Active", power_battery: "BATTERY",
+      power_electronics: "ELECTRONICS", system_baseline: "Baseline Drift", system_offset: "Dynamic Offset",
+      system_offset_desc: "Continuous baseline drift tracking automatically adjusts the zero-point for MQ135/MQ2 daily to prevent false positives."
+    },
+    hi: {
+      nav_overview: "अवलोकन (Overview)", nav_map: "लाइव खतरा मानचित्र", nav_network: "सेंसर नेटवर्क", 
+      nav_sensors: "सेंसर इंटेलिजेंस", nav_ai: "एआई सत्यापन", nav_incidents: "घटनाएँ", 
+      nav_alerts: "अलर्ट (Alerts)", nav_analytics: "एनालिटिक्स", nav_deployment: "तैनाती", 
+      nav_prototype: "प्रोटोटाइप", nav_system: "सिस्टम", nav_admin: "एडमिन",
+      overview_title: "संचालन अवलोकन", overview_desc: "प्रारंभिक चेतावनी खतरे का पता लगाने के लिए वास्तविक समय कमान केंद्र।",
+      deployment_title: "तैनाती रणनीति", deployment_desc: "तैनाती उदाहरण: नैनीताल - स्केलेबिलिटी और लागत विश्लेषण।",
+      system_title: "सिस्टम स्वास्थ्य और जोखिम", system_desc: "हार्डवेयर स्वास्थ्य और स्वचालित शमन का दृश्य मैट्रिक्स।",
+      prototype_title: "सेंसर नोड प्रोटोटाइप", prototype_desc: "इंटरएक्टिव 3डी मॉडल और लाइव फायर-इवेंट सिमुलेशन इंजन।",
+      nav_network_title: "नेटवर्क आर्किटेक्चर", nav_network_desc: "सिस्टम टोपोलॉजी और ऑफलाइन-फर्स्ट स्टेट मॉनिटरिंग।",
+      map_title: "एक नज़र में पर्यावरण संचालन।", map_desc: "एक साझा परिचालन दृश्य में सत्यापित संकेत, सक्रिय घटनाएं और नेटवर्क स्वास्थ्य देखें।",
+      btn_fire: "अग्नि घटना अनुकरण करें", btn_gas: "गैस रिसाव अनुकरण करें",
+      kpi_nodes: "ऑनलाइन नोड्स", kpi_incidents: "खुली घटनाएं", kpi_threat: "वैश्विक खतरा स्तर", kpi_activity: "लाइव गतिविधि फ़ीड",
+      table_id: "आईडी", table_type: "प्रकार", table_zone: "क्षेत्र", table_ai: "एआई पुष्टि", table_status: "स्थिति",
+      status_online: "सिस्टम स्थिति", status_text: "ऑनलाइन",
+      offline_mode: "ऑफ़लाइन मोड · पुनः कनेक्शन का प्रयास...",
+      ops_label: "संचालन / पर्यावरणीय निगरानी"
+      , admin_title: "प्रशासन", admin_desc: "पहुंच, संचालन सीमाओं और तैयारी का प्रबंधन करें।",
+      admin_users: "उपयोगकर्ता और भूमिकाएं", admin_thresholds: "सीमाएं", admin_user: "उपयोगकर्ता", admin_role: "भूमिका",
+      admin_zone: "क्षेत्र", admin_2fa: "2FA", admin_confidence: "गंभीरता कॉन्फिडेंस सीमा",
+      admin_timeout: "नोड ऑफ़लाइन समय सीमा (मिनट)", admin_save: "कॉन्फ़िगरेशन सहेजें",
+      system_compute: "Jetson कंप्यूट लोड", system_peak: "पीक इन्फरेंस",
+      system_mitigation: "स्वचालित शमन सक्रिय", system_mitigation_desc: "इवेंट-ट्रिगर AI केवल सेंसर सीमा (>150 AQI) पार होने पर YOLOv8 चलाता है, जिससे 80% निष्क्रिय कंप्यूट बचता है।",
+      system_packet: "LoRa पैकेट लॉस", system_canopy: "पेड़ों से हस्तक्षेप", system_buffer: "बफर सक्रिय",
+      system_buffer_desc: "नोड-स्तरीय SRAM बफर Jetson गेटवे से ACK मिलने तक 48 घंटे की महत्वपूर्ण घटनाएं रखता है।",
+      system_calibration: "सेंसर कैलिब्रेशन",
+      system_topology_title: "इंफ्रास्ट्रक्चर टोपोलॉजी स्वास्थ्य", topology_solar: "सौर ऐरे", status_optimal: "उत्कृष्ट",
+      topology_charge: "औसत चार्ज क्षमता", topology_generation: "उत्पादन", topology_draw: "खपत",
+      topology_uplink: "मेष अपलिंक", status_active: "सक्रिय", topology_latency: "औसत गेटवे विलंबता",
+      topology_signal: "सिग्नल शक्ति", topology_type: "टोपोलॉजी", topology_vision: "विज़न मॉडल",
+      status_updating: "अपडेट हो रहा है", topology_weights: "वर्तमान YOLOv8 वेट्स", topology_accuracy: "सटीकता",
+      topology_next_sync: "अगला सिंक", topology_two_hours: "2 घंटे में", topology_api: "API एंडपॉइंट",
+      status_online_value: "ऑनलाइन", topology_uptime: "गेटवे अपटाइम (30 दिन)", topology_requests: "रिक्वेस्ट",
+      topology_errors: "त्रुटियां"
+      , network_mesh_title: "लाइव मेष टोपोलॉजी", network_offline_active: "ऑफलाइन-फर्स्ट मोड सक्रिय",
+      network_offline_desc: "नेटवर्क अभी स्वायत्त रूप से चल रहा है। गंभीर खतरे का सत्यापन NVIDIA Jetson एज गेटवे पर स्थानीय रूप से हो रहा है। कनेक्शन बहाल होने तक अलर्ट स्थानीय सायरन से प्रसारित होंगे।",
+      network_power_title: "पावर सिस्टम विज़ुअलाइज़ेशन (एज गेटवे)", power_solar: "सौर पैनल",
+      power_controller: "चार्ज कंट्रोलर", power_mppt: "MPPT सक्रिय", power_battery: "बैटरी",
+      power_electronics: "इलेक्ट्रॉनिक्स", system_baseline: "बेसलाइन ड्रिफ्ट", system_offset: "डायनेमिक ऑफसेट",
+      system_offset_desc: "बेसलाइन ड्रिफ्ट की लगातार निगरानी MQ135/MQ2 के ज़ीरो-पॉइंट को रोज़ाना समायोजित करती है ताकि गलत अलर्ट रोके जा सकें।"
+    }
+  };
+
+  function updateLanguage() {
+    const dict = i18n[appState.lang] || i18n.en;
+    document.documentElement.lang = appState.lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key]) el.textContent = dict[key];
+    });
+    const activeHeading = document.querySelector('.page.active .subpage-header h2');
+    const pageTitle = document.getElementById('pageTitle');
+    if (activeHeading && pageTitle) pageTitle.textContent = activeHeading.textContent.trim();
+  }
+
+  // Language toggle
   const langToggle = document.getElementById('langToggle');
   if (langToggle) {
     langToggle.addEventListener('click', () => {
       appState.lang = appState.lang === 'en' ? 'hi' : 'en';
-      langToggle.textContent = appState.lang === 'en' ? 'हिं' : 'EN';
-      showToast('Language Changed', `Interface language set to ${appState.lang.toUpperCase()}.`, 'info');
+      localStorage.setItem('zenalert-dashboard-lang', appState.lang);
+      langToggle.innerHTML = appState.lang === 'en'
+        ? '<span class="lang-active">EN</span><span aria-hidden="true"> | </span><span>हिं</span>'
+        : '<span>EN</span><span aria-hidden="true"> | </span><span class="lang-active">हिं</span>';
+      langToggle.setAttribute('aria-pressed', String(appState.lang === 'hi'));
+      updateLanguage();
+      updateShell();
+      showToast('Language Changed', `Interface language set to ${appState.lang === 'en' ? 'English' : 'हिंदी'}.`, 'info');
+    });
+    langToggle.innerHTML = appState.lang === 'en'
+      ? '<span class="lang-active">EN</span><span aria-hidden="true"> | </span><span>हिं</span>'
+      : '<span>EN</span><span aria-hidden="true"> | </span><span class="lang-active">हिं</span>';
+    langToggle.setAttribute('aria-pressed', String(appState.lang === 'hi'));
+  }
+  updateLanguage();
+
+  // Live/Demo Toggle
+  const btnLive = document.getElementById('btnModeLive');
+  const btnDemo = document.getElementById('btnModeDemo');
+  if (btnLive && btnDemo) {
+    btnLive.addEventListener('click', () => {
+      btnLive.className = "flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold rounded-full bg-critical/20 text-critical border border-critical shadow-[0_0_10px_rgba(239,68,68,0.3)] transition-all tracking-widest uppercase";
+      btnLive.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-critical animate-pulse"></div> LIVE';
+      btnDemo.className = "px-3 py-1 text-[10px] font-bold rounded-full text-secondary hover:text-primary transition-all tracking-widest uppercase border border-transparent";
+      btnDemo.innerHTML = 'DEMO';
+      showToast('Live Mode', 'Connected to production mesh network.', 'warning');
+    });
+    btnDemo.addEventListener('click', () => {
+      btnDemo.className = "flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold rounded-full bg-accent/20 text-accent border border-accent shadow-[0_0_10px_rgba(94,234,198,0.3)] transition-all tracking-widest uppercase";
+      btnDemo.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></div> DEMO';
+      btnLive.className = "px-3 py-1 text-[10px] font-bold rounded-full text-secondary hover:text-primary transition-all tracking-widest uppercase border border-transparent";
+      btnLive.innerHTML = 'LIVE';
+      showToast('Demo Mode', 'Simulation data is now active.', 'info');
     });
   }
   
-  // Simulation buttons
-  const btnFire = document.getElementById('simulateFire');
-  const btnGas = document.getElementById('simulateGas');
-  if (btnFire) btnFire.addEventListener('click', async () => {
-    try {
-      const res = await api.simulateFire();
-      if (res && res.incident) {
-        showToast('Simulation', 'Fire event simulated.', 'critical');
-        await refreshData();
-      }
-    } catch(e) { console.error(e); }
-  });
-  
-  if (btnGas) btnGas.addEventListener('click', async () => {
-    try {
-      const res = await api.simulateGas();
-      if (res && res.incident) {
-        showToast('Simulation', 'Gas leak simulated.', 'warn');
-        await refreshData();
-      }
-    } catch(e) { console.error(e); }
-  });
+
+
+  // Simulate incident buttons removed
 
   // Init Router & Pages
   initPages();
@@ -135,6 +249,7 @@ function showToast(title, message, type = 'info') {
     setTimeout(() => el.remove(), 300);
   }, 4000);
 }
+window.showToast = showToast;
 
 async function refreshData() {
   try {
@@ -143,6 +258,7 @@ async function refreshData() {
       api.fetchIncidents(),
       api.fetchNodes()
     ]);
+    await api.checkHealth();
     
     appState.overview = overview;
     appState.incidents = incidents;
@@ -154,7 +270,8 @@ async function refreshData() {
     const activePage = document.querySelector('.page.active');
     if (activePage) {
       const id = activePage.id.replace('page-', '');
-      if (id === 'map') renderMapPage();
+      if (id === 'overview') renderOverviewPage();
+      else if (id === 'map') renderMapPage();
       else if (id === 'incidents') renderIncidentsPage();
       else if (id === 'sensors') renderSensorsPage();
       else if (id === 'devices') renderDevicesPage();
@@ -178,9 +295,14 @@ function updateShell() {
   const banner = document.getElementById('offlineBanner');
   
   if (connStatus) connStatus.className = `status-dot ${isOnline ? 'green' : 'gray'}`;
-  if (connText) connText.textContent = isOnline ? 'Online' : 'Offline';
+  if (connText) {
+    connText.textContent = isOnline
+      ? (appState.lang === 'hi' ? 'ऑनलाइन' : 'Online')
+      : (appState.lang === 'hi' ? 'ऑफ़लाइन' : 'Offline');
+  }
   
   if (banner) {
+    banner.hidden = isOnline;
     if (isOnline) banner.classList.remove('show');
     else banner.classList.add('show');
   }
@@ -201,12 +323,16 @@ function updateShell() {
 // ── Page Initializers & Renderers ─────────────────────────────
 
 function initPages() {
+  registerRoute('overview', { title: 'Command Center Overview', onEnter: () => renderOverviewPage() });
   registerRoute('map', { title: 'Live Environmental Map', onEnter: () => renderMapPage() });
   registerRoute('incidents', { title: 'Incident Center', onEnter: () => renderIncidentsPage() });
   registerRoute('sensors', { title: 'Sensors & Air Quality', onEnter: () => renderSensorsPage() });
   registerRoute('devices', { title: 'Device Health', onEnter: () => renderDevicesPage() });
   registerRoute('alerts', { title: 'Alert Operations' });
   registerRoute('analytics', { title: 'Analytics & Reports', onEnter: () => renderAnalyticsPage() });
+  registerRoute('deployment', { title: 'Deployment Strategy' });
+  registerRoute('prototype', { title: 'Sensor Node Prototype', onEnter: () => renderPrototypePage() });
+  registerRoute('system', { title: 'System Health & Risks' });
   registerRoute('admin', { title: 'Administration' });
   registerRoute('ai-verify', { title: 'AI Verification' });
   registerRoute('network', { title: 'Network Architecture' });
@@ -225,6 +351,58 @@ function initPages() {
   document.querySelectorAll('[data-close-modal]').forEach(btn => {
     btn.addEventListener('click', closeIncidentModal);
   });
+}
+
+function renderOverviewPage() {
+  const data = appState.overview;
+  if (!data) return;
+  
+  const feed = document.getElementById('overviewFeed');
+  if (feed && appState.incidents) {
+    feed.innerHTML = appState.incidents.slice(0, 5).map(inc => `
+      <div class="incident-feed-item" onclick="window.location.hash='incidents'; setTimeout(() => window.openIncidentDetail(${inc.id}), 100);">
+        <div class="incident-feed-dot ${inc.severity === 'critical' ? 'bg-critical' : (inc.severity === 'high' ? 'bg-high' : 'bg-watch')}" style="background-color: var(--severity-${inc.severity})"></div>
+        <div class="incident-feed-content">
+          <div class="incident-feed-type">${inc.type}</div>
+          <div class="incident-feed-meta">${inc.zone} · ${inc.node}</div>
+        </div>
+        <div class="incident-feed-time">${inc.time}</div>
+      </div>
+    `).join('') || '<div class="p-3 text-sm text-muted">No active incidents</div>';
+  }
+}
+
+let prototype3D = null;
+function renderPrototypePage() {
+  if (!prototype3D) {
+    setTimeout(() => {
+      const container = document.getElementById('dashboard3DContainer');
+      if (container && container.clientWidth > 0) {
+        prototype3D = new SensorNode3D('dashboard3DContainer', {
+          autoRotate: true,
+          onClick: (name) => {
+            const drawer = document.getElementById('info3DDrawer');
+            if (drawer) {
+              drawer.style.display = 'block';
+              document.getElementById('info3DTitle').textContent = name;
+              document.getElementById('info3DDesc').textContent = 'Live telemetry and hardware diagnostics for ' + name;
+            }
+          }
+        });
+        
+        document.getElementById('btn3dExplode')?.addEventListener('click', () => {
+          if(prototype3D) prototype3D.toggleExploded();
+        });
+        document.getElementById('btn3dReset')?.addEventListener('click', () => {
+          if(prototype3D) {
+            prototype3D.isExploded = false;
+            prototype3D.highlightComponent(null);
+            document.getElementById('info3DDrawer').style.display = 'none';
+          }
+        });
+      }
+    }, 100);
+  }
 }
 
 function renderMapPage() {

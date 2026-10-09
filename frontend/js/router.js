@@ -68,7 +68,8 @@ export function initRouter(defaultRoute = 'map') {
     // Update topbar title
     const titleEl = document.getElementById('pageTitle');
     if (titleEl && route.title) {
-      titleEl.textContent = route.title;
+      const pageHeading = pageEl && pageEl.querySelector('.subpage-header h2');
+      titleEl.textContent = pageHeading ? pageHeading.textContent.trim() : route.title;
     }
 
     // Update nav active state

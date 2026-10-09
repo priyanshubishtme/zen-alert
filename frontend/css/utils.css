@@ -193,3 +193,39 @@
 .inline-block { display: inline-block; }
 .bg-transparent { background-color: transparent; }
 .border-dashed { border-style: dashed; }
+
+/* Missing opacity and spacing utilities */
+.opacity-5 { opacity: 0.05; }
+.opacity-10 { opacity: 0.1; }
+.opacity-40 { opacity: 0.4; }
+.opacity-70 { opacity: 0.7; }
+.opacity-80 { opacity: 0.8; }
+.opacity-90 { opacity: 0.9; }
+
+/* Backgrounds & Borders */
+.bg-accent\/20 { background-color: rgba(94,234,198,0.2); }
+.bg-accent\/10 { background-color: rgba(94,234,198,0.1); }
+.border-t-4 { border-top-width: 4px; border-style: solid; }
+.border-none { border-width: 0; }
+.border-watch { border-color: var(--severity-watch); }
+.border-normal { border-color: var(--severity-normal); }
+.border-critical { border-color: var(--severity-critical); }
+.border-bg-base { border-color: var(--bg-base); }
+.text-bg-base { color: var(--bg-base); }
+
+/* Typography */
+.tracking-tighter { letter-spacing: -0.05em; }
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.05); }
+}
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+  50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+}
+.animate-bounce { animation: bounce 1s infinite; }
+

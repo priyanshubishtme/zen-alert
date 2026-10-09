@@ -63,43 +63,129 @@ export class SensorNode3D {
 
   buildProceduralModel() {
     const materials = {
-      enclosure: new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.8, metalness: 0.2 }),
-      solar: new THREE.MeshStandardMaterial({ color: 0x112233, roughness: 0.3, metalness: 0.8 }),
-      pcb: new THREE.MeshStandardMaterial({ color: 0x005500, roughness: 0.9 }),
-      lens: new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.1, metalness: 0.9 }),
-      metal: new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.4, metalness: 0.8 }),
-      sensor: new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.7 }),
-      battery: new THREE.MeshStandardMaterial({ color: 0x1e88e5, roughness: 0.5 })
+      enclosureBase: new THREE.MeshPhysicalMaterial({ 
+        color: 0xffffff, 
+        metalness: 0.1, 
+        roughness: 0.2, 
+        transmission: 0.9, // glass-like transparency
+        transparent: true,
+        opacity: 0.4,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1
+      }),
+      enclosureDark: new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.5, metalness: 0.8 }),
+      solarBase: new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6, metalness: 0.3 }),
+      solarCell: new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.1, metalness: 0.9, clearcoat: 1.0 }),
+      pcb: new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.7, metalness: 0.2 }),
+      pcbGold: new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.2, metalness: 1.0 }),
+      lensGlass: new THREE.MeshPhysicalMaterial({ color: 0x000000, metalness: 0.9, roughness: 0.1, clearcoat: 1.0 }),
+      metal: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.3, metalness: 1.0 }),
+      sensorMesh: new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.6, metalness: 0.8, wireframe: true }),
+      battery: new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.3, metalness: 0.5 }),
+      antenna: new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 }),
+      ledGreen: new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x10b981, emissiveIntensity: 2.0 }),
+      ledRed: new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 2.0 })
     };
 
-    // Main Enclosure
-    this.createPart('Enclosure', new THREE.BoxGeometry(4, 5, 3), materials.enclosure, [0, 0, 0], [0, 0, 3]);
+    // 1. Enclosure (Transparent Acrylic Case)
+    const enclosureBody = new THREE.Mesh(new THREE.BoxGeometry(4.2, 5.2, 3.2), materials.enclosureBase);
+    const enclosureLid = new THREE.Mesh(new THREE.BoxGeometry(4.4, 5.4, 0.2), materials.enclosureDark);
+    enclosureLid.position.set(0, 0, 1.6);
+    enclosureBody.add(enclosureLid);
+    this.createPart('Rugged Enclosure (IP67)', enclosureBody.geometry, materials.enclosureBase, [0, 0, 0], [0, 0, 4]);
+    this.components['Rugged Enclosure (IP67)'].add(enclosureLid);
 
-    // Solar Panel (on top, angled)
-    const solarPanel = this.createPart('Solar Panel', new THREE.BoxGeometry(5, 0.2, 4), materials.solar, [0, 3, 0], [0, 4, 0]);
-    solarPanel.rotation.x = Math.PI / 8;
+    // 2. Solar Panel (Detailed Grid)
+    const solarGroup = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.2, 4.2), materials.solarBase);
+    // Add cells
+    for(let i=0; i<4; i++) {
+      for(let j=0; j<3; j++) {
+        const cell = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.05, 1.2), materials.solarCell);
+        cell.position.set(-1.8 + i*1.2, 0.12, -1.2 + j*1.2);
+        solarGroup.add(cell);
+      }
+    }
+    this.createPart('10W Solar Panel', solarGroup.geometry, materials.solarBase, [0, 3.5, 0], [0, 6, 0]);
+    solarGroup.children.forEach(c => this.components['10W Solar Panel'].add(c.clone()));
+    this.components['10W Solar Panel'].rotation.x = Math.PI / 6;
 
-    // Camera (front)
-    const camBody = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.5), materials.pcb);
-    const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.5, 16), materials.lens);
+    // 3. Camera Module (Detailed Lens)
+    const camBase = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 0.4), materials.pcb);
+    const camMount = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16), materials.metal);
+    camMount.rotation.x = Math.PI / 2;
+    camMount.position.set(0, 0, 0.3);
+    const camLens = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.35, 16), materials.lensGlass);
     camLens.rotation.x = Math.PI / 2;
-    camLens.position.set(0, 0, 0.4);
-    camBody.add(camLens);
-    this.createPart('IMX219 Camera', camBody.geometry, materials.pcb, [0, 1.5, 1.6], [0, 1.5, 4]);
-    this.components['IMX219 Camera'].add(camLens);
+    camLens.position.set(0, 0, 0.35);
+    camBase.add(camMount);
+    camBase.add(camLens);
+    this.createPart('IMX219 AI Camera', camBase.geometry, materials.pcb, [0, 1.5, 1.8], [0, 1.5, 6]);
+    this.components['IMX219 AI Camera'].add(camMount);
+    this.components['IMX219 AI Camera'].add(camLens);
 
-    // Antenna (side)
-    this.createPart('LoRa Antenna', new THREE.CylinderGeometry(0.1, 0.1, 3), materials.lens, [2.2, 1, 0], [4, 1, 0]);
+    // 4. LoRa Antenna (Tapered)
+    const antBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.5, 16), materials.metal);
+    const antMast = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.15, 3.5, 16), materials.antenna);
+    antMast.position.set(0, 2, 0);
+    antBase.add(antMast);
+    this.createPart('LoRa Mesh Antenna', antBase.geometry, materials.metal, [2.3, 1.5, 0], [5, 2, 0]);
+    this.components['LoRa Mesh Antenna'].add(antMast);
 
-    // Sensors (bottom)
-    this.createPart('MQ135 Gas Sensor', new THREE.CylinderGeometry(0.4, 0.4, 0.8), materials.metal, [-1, -2.8, 0.5], [-3, -4, 2]);
-    this.createPart('MQ2 Smoke Sensor', new THREE.CylinderGeometry(0.4, 0.4, 0.8), materials.metal, [1, -2.8, 0.5], [3, -4, 2]);
-    this.createPart('DHT11 Temp/Hum', new THREE.BoxGeometry(0.6, 1, 0.4), materials.battery, [0, -2.8, -0.5], [0, -4, -2]);
-    this.createPart('GP2Y1010 PM2.5', new THREE.BoxGeometry(1.2, 1.2, 0.8), materials.sensor, [0, -2.8, 0.5], [0, -5, 4]);
-    
-    // Internal Electronics (ESP32, Battery)
-    this.createPart('ESP32-S3', new THREE.BoxGeometry(1.5, 2.5, 0.2), materials.pcb, [0, 0, -1.2], [0, 0, -4]);
-    this.createPart('Battery 18650', new THREE.CylinderGeometry(0.4, 0.4, 2.5), materials.battery, [-1, 0, -1], [-4, 0, -4]);
+    // 5. Sensors (Detailed Gas/Air Quality)
+    // MQ135 (Air Quality)
+    const mq135Base = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.4, 16), materials.pcb);
+    const mq135Mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.6, 16), materials.sensorMesh);
+    mq135Mesh.position.set(0, -0.5, 0);
+    mq135Base.add(mq135Mesh);
+    this.createPart('MQ135 Air Quality Sensor', mq135Base.geometry, materials.pcb, [-1.2, -2.8, 0.8], [-3.5, -5, 3]);
+    this.components['MQ135 Air Quality Sensor'].add(mq135Mesh);
+
+    // MQ2 (Gas/Smoke)
+    const mq2Base = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.4, 16), materials.pcb);
+    const mq2Mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.6, 16), materials.sensorMesh);
+    mq2Mesh.position.set(0, -0.5, 0);
+    mq2Base.add(mq2Mesh);
+    this.createPart('MQ2 Gas/Smoke Sensor', mq2Base.geometry, materials.pcb, [1.2, -2.8, 0.8], [3.5, -5, 3]);
+    this.components['MQ2 Gas/Smoke Sensor'].add(mq2Mesh);
+
+    // DHT11 & GP2Y1010
+    this.createPart('DHT11 Temp/Humidity', new THREE.BoxGeometry(0.8, 1.2, 0.5), materials.battery, [0, -2.9, -0.8], [0, -5, -3]);
+    this.createPart('GP2Y1010 PM2.5 Optical', new THREE.BoxGeometry(1.4, 1.6, 0.8), materials.enclosureDark, [0, -2.8, 0.8], [0, -6, 5]);
+
+    // 6. Internal Electronics
+    // ESP32-S3 Board
+    const espBoard = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.8, 0.1), materials.pcb);
+    const espChip = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.15), materials.enclosureDark);
+    espChip.position.set(0, 0.5, 0.1);
+    const espAnt = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.8, 0.05), materials.pcbGold);
+    espAnt.position.set(0, 1.2, 0.1);
+    const espLed = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), materials.ledGreen);
+    espLed.position.set(-0.6, -1, 0.1);
+    espBoard.add(espChip);
+    espBoard.add(espAnt);
+    espBoard.add(espLed);
+    this.createPart('ESP32-S3 Edge Controller', espBoard.geometry, materials.pcb, [0, 0, -1.2], [0, 0, -5]);
+    this.components['ESP32-S3 Edge Controller'].add(espChip);
+    this.components['ESP32-S3 Edge Controller'].add(espAnt);
+    this.components['ESP32-S3 Edge Controller'].add(espLed);
+
+    // Battery Pack (2x 18650)
+    const battPack = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.8, 0.8), materials.battery);
+    this.createPart('Dual 18650 Battery Pack', battPack.geometry, materials.battery, [-1.2, 0, -1], [-4, 0, -5]);
+
+    // GPS & Power Mgmt
+    const gpsBoard = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.0, 0.1), materials.pcb);
+    const gpsAnt = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.2), materials.pcbGold);
+    gpsAnt.position.set(0, 0, 0.1);
+    const gpsLed = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), materials.ledRed);
+    gpsLed.position.set(-0.3, -0.3, 0.1);
+    gpsBoard.add(gpsAnt);
+    gpsBoard.add(gpsLed);
+    this.createPart('NEO-6M GPS Module', gpsBoard.geometry, materials.pcb, [1.2, 1.2, -1.2], [4, 2, -5]);
+    this.components['NEO-6M GPS Module'].add(gpsAnt);
+    this.components['NEO-6M GPS Module'].add(gpsLed);
+
+    this.createPart('MPPT Solar Charge Controller', new THREE.BoxGeometry(1.4, 1.8, 0.4), materials.pcb, [0, -1.8, -1.2], [0, -3.5, -6]);
   }
 
   toggleExploded() {
