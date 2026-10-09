@@ -4,7 +4,7 @@ A presentation-ready browser prototype for the ZenAlert environmental early-warn
 
 ## What is included
 
-- Live Map control-room dashboard
+- Live Map control-room dashboard (MapLibre GL + CARTO tiles — no API key needed)
 - Simulated environmental sensor telemetry
 - Multi-modal confidence / severity display
 - Incident Center with search
@@ -13,13 +13,13 @@ A presentation-ready browser prototype for the ZenAlert environmental early-warn
 - Alert Composer + delivery log
 - Analytics & Reports view
 - Admin / thresholds page
-- Standalone Sensor Node Prototype with live fire-event simulation
+- Standalone Sensor Node Prototype with live fire-event simulation (Three.js 3D scene)
 - Dark / light mode
 - English / Hindi toggle
 - Online / Offline connection state
 - Responsive layouts for desktop, laptop, tablet, and mobile
 
-## Run
+## Run Locally
 
 1. Install the Python dependencies used by the backend.
 2. Start the backend from the repository root:
@@ -30,7 +30,7 @@ A presentation-ready browser prototype for the ZenAlert environmental early-warn
 
 3. Open `http://127.0.0.1:8000/` for the landing page and `http://127.0.0.1:8000/app.html` for the dashboard.
 4. Use the dashboard's **Prototype** page for the embedded simulation, or open `http://127.0.0.1:8000/simulation.html?v=5` for the focused standalone prototype.
-5. The standalone prototype intentionally has no “Back to Site” or “Open Dashboard” actions. It is a focused sensor-node lab view containing only the simulation, sensor controls, status display, and pipeline. The dashboard embed provides the separate **Open Fullscreen** action when a larger view is needed.
+5. The standalone prototype intentionally has no "Back to Site" or "Open Dashboard" actions. It is a focused sensor-node lab view containing only the simulation, sensor controls, status display, and pipeline. The dashboard embed provides the separate **Open Fullscreen** action when a larger view is needed.
 6. In the dashboard, **LIVE** uses the FastAPI service and **DEMO** uses sample data. Use **EN | हिं** for the language toggle and the moon icon for theme changes.
 
 ### Prototype controls
@@ -50,6 +50,40 @@ The prototype header is intentionally compact and contains no navigation links. 
 - The dashboard's Prototype route remains the entry point when the simulation needs to be viewed in context.
 - The standalone simulation is safe by default and provides explicit **NORMAL**, **FIRE TEST**, and **CLEAR** controls.
 
+## Deploy to Production (Render)
+
+We deploy on **Render** as a single web service — FastAPI serves both the API and the static frontend.
+
+1. Push this repository to GitHub.
+2. Go to [Render Dashboard → Blueprints](https://dashboard.render.com/blueprints) → **New Blueprint Instance**.
+3. Connect your GitHub repository — Render will detect `render.yaml` and create the service.
+4. Set `FRONTEND_ORIGINS` to your Render URL (e.g. `https://zenalert-api.onrender.com`).
+5. Wait for the build to finish. Your site is live at your Render URL.
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the full deployment guide, environment variables reference, verification checklist, and 3D map setup details.
+
+## Map & 3D Setup — No API Keys Needed
+
+| Component          | Library          | API Key? |
+|--------------------|------------------|----------|
+| Live Threat Map    | MapLibre GL JS   | ❌ No    |
+| Base map tiles     | CARTO Dark (OSM) | ❌ No    |
+| 3D Sensor Sim      | Three.js         | ❌ No    |
+
+The map uses free CARTO raster tiles over MapLibre GL with 45° pitch for the 3D perspective. No API keys or accounts are required. See [DEPLOYMENT.md](DEPLOYMENT.md#3d-map-setup-maplibre-gl--carto-tiles) for details on switching to vector tiles (MapTiler, Stadia, Mapbox) if needed.
+
+## Environment Setup
+
+Copy `.env.example` to `.env` and fill in the values:
+
+```bash
+cp .env.example .env
+```
+
+See [.env.example](.env.example) for all available variables and documentation.
+
+> **Note:** The current demo works with zero configuration. `.env` is only needed if you want to set custom CORS origins for production.
+
 ## Deployment Strategy & Scalability (Nainital Example)
 
 Our deployment model scales cost-effectively from a single prototype to full district-wide coverage:
@@ -64,7 +98,7 @@ Our deployment model scales cost-effectively from a single prototype to full dis
 The visual IA follows the PRD's specified dashboard pages and core features:
 Live Map, Incident Center, Incident Detail, Sensors & Air Quality, Device Health, Alerts, Analytics, Admin, Public Alert View, and the Deployment Strategy page.
 
-The map is an offline-friendly visual prototype; it can later be swapped for Leaflet + cached OSM/MBTiles, while keeping the same UI shell.
+The map uses MapLibre GL JS with CARTO dark raster tiles; it can later be swapped for vector tiles with a provider API key, while keeping the same UI shell.
 
 ## Backend integration points
 

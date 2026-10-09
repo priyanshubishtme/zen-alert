@@ -2,9 +2,9 @@
  * api.js — API client with fallback to embedded mock data
  *
  * Configuration:
- *   Production (Vercel):  Set window.ZENALERT_API_BASE in a <script> tag
- *                         before this module loads, OR edit the PRODUCTION_API_URL
- *                         constant below after creating your Render service.
+ *   Production (Render):  Auto-detects same-origin when served by FastAPI.
+ *                         Optionally set window.ZENALERT_API_BASE in a <script>
+ *                         tag, or edit the PRODUCTION_API_URL constant below.
  *   Local development:    Automatically uses http://127.0.0.1:8000 when served
  *                         from dev-server ports, or the same origin when served
  *                         by the FastAPI backend directly.
@@ -13,7 +13,7 @@
 // ── API Base URL Resolution ─────────────────────────────────────
 //
 // Priority order:
-// 1. window.ZENALERT_API_BASE  — set by inline <script> in HTML (recommended for Vercel)
+// 1. window.ZENALERT_API_BASE  — set by inline <script> in HTML (optional override)
 // 2. PRODUCTION_API_URL        — hardcoded fallback for production
 // 3. Local dev fallback        — auto-detected from port number
 // 4. Same-origin fallback      — when served by the FastAPI backend
@@ -24,7 +24,7 @@
 const PRODUCTION_API_URL = '';
 
 function resolveApiBase() {
-  // 1. Explicit override via global variable (set in HTML or by Vercel config)
+  // 1. Explicit override via global variable (set in HTML)
   if (window.ZENALERT_API_BASE) {
     return window.ZENALERT_API_BASE.replace(/\/+$/, '');
   }

@@ -1,7 +1,8 @@
-# render.yaml — Render Blueprint for ZenAlert API
+# render.yaml — Render Blueprint for ZenAlert
 # https://render.com/docs/blueprint-spec
 #
 # Use: Connect this repo to Render and it will auto-detect this file.
+# FastAPI serves both the API and the static frontend from a single service.
 
 services:
   - type: web
@@ -14,8 +15,8 @@ services:
     healthCheckPath: /health
     envVars:
       - key: FRONTEND_ORIGINS
-        # After deploying, set this to your Vercel frontend URL(s).
-        # Example: https://zen-alert.vercel.app,https://yourdomain.com
+        # Set this to your Render URL and any custom domains (comma-separated).
+        # Example: https://zenalert-api.onrender.com,https://zenalert.yourdomain.com
         value: ""
       - key: PYTHON_VERSION
         value: "3.11.9"

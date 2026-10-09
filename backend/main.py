@@ -32,7 +32,7 @@ app = FastAPI(title="ZenAlert API", version="1.0.0")
 # ── CORS ─────────────────────────────────────────────────────────
 # In production, set the FRONTEND_ORIGINS environment variable to a
 # comma-separated list of allowed origins.
-# Example: FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://yourdomain.com
+# Example: FRONTEND_ORIGINS=https://zenalert-api.onrender.com,https://yourdomain.com
 _default_origins = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
@@ -69,9 +69,9 @@ async def health():
         "version": "1.0.0",
     })
 
-# ── Static files (for local development) ─────────────────────────
-# When deployed on Render the frontend is served by Vercel.
-# These mounts remain so local `uvicorn backend.main:app` still works.
+# ── Static files ─────────────────────────────────────────────────
+# FastAPI serves the frontend as static files in both local dev and production.
+# On Render, the same service handles both the API and the frontend.
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
 if FRONTEND_DIR.exists():

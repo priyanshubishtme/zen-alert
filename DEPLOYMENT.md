@@ -1,20 +1,21 @@
 # ZenAlert — Deployment Guide
 
-Production architecture: **Vercel** (frontend) ↔ **Render** (FastAPI backend).
+Production architecture: **Render** serves both the FastAPI backend and static frontend from a single web service.
 
 ---
 
 ## Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [Step 1: Deploy Backend on Render](#step-1-deploy-backend-on-render)
-3. [Step 2: Configure Frontend for Production](#step-2-configure-frontend-for-production)
-4. [Step 3: Configure CORS on Render](#step-3-configure-cors-on-render)
-5. [Step 4: Verify the Deployment](#step-4-verify-the-deployment)
+2. [Prerequisites](#prerequisites)
+3. [Step 1: Deploy on Render](#step-1-deploy-on-render)
+4. [Step 2: Configure Environment Variables](#step-2-configure-environment-variables)
+5. [Step 3: Verify the Deployment](#step-3-verify-the-deployment)
 6. [Local Development](#local-development)
 7. [Environment Variables Reference](#environment-variables-reference)
-8. [Storage and Persistence Limitations](#storage-and-persistence-limitations)
-9. [Future Hardware Integration Notes](#future-hardware-integration-notes)
+8. [3D Map Setup (MapLibre GL + CARTO Tiles)](#3d-map-setup-maplibre-gl--carto-tiles)
+9. [Storage and Persistence Limitations](#storage-and-persistence-limitations)
+10. [Future Hardware Integration Notes](#future-hardware-integration-notes)
 
 ---
 
@@ -24,18 +25,13 @@ Production architecture: **Vercel** (frontend) ↔ **Render** (FastAPI backend).
                     USERS
                       |
                       v
-               YOUR VERCEL DOMAIN
-          (e.g. zen-alert.vercel.app)
-                      |
-                      v
-                   VERCEL
-           Static HTML/CSS/JS frontend
-                      |
-                      | HTTPS API requests
+             YOUR RENDER DOMAIN
+        (e.g. zenalert-api.onrender.com)
                       |
                       v
               RENDER WEB SERVICE
-           FastAPI + Uvicorn (Python)
+        FastAPI + Uvicorn (Python)
+        Serves static frontend files
                       |
             +---------+---------+
             |         |         |
@@ -47,17 +43,23 @@ Production architecture: **Vercel** (frontend) ↔ **Render** (FastAPI backend).
       ESP32 / LoRa / MQTT / Edge AI
 ```
 
-The frontend is a static site (HTML + CSS + JS modules) deployed on Vercel.  
-The backend is a FastAPI application deployed on Render.  
-They communicate over HTTPS via the `/api/*` endpoints.
+FastAPI serves both the `/api/*` endpoints **and** the static frontend (HTML + CSS + JS) from a single Render web service. No separate hosting needed.
 
 ---
 
-## Step 1: Deploy Backend on Render
+## Prerequisites
+
+- A [GitHub](https://github.com) account with this repository pushed
+- A free [Render](https://render.com) account
+- Python 3.11+ (for local development)
+
+---
+
+## Step 1: Deploy on Render
 
 ### Option A: Blueprint (Recommended)
 
-1. Push this repository to GitHub (if not already).
+1. Push this repository to GitHub.
 2. Go to [Render Dashboard → Blueprints](https://dashboard.render.com/blueprints).
 3. Click **New Blueprint Instance**.
 4. Connect your GitHub repository.
@@ -98,95 +100,49 @@ They communicate over HTTPS via the `/api/*` endpoints.
    ```json
    {"status": "healthy", "service": "zenalert-api", "version": "1.0.0"}
    ```
-4. Verify the API docs (if not disabled):
+4. Verify the API docs:
    ```
    https://YOUR-SERVICE.onrender.com/docs
    ```
+5. Open the landing page:
+   ```
+   https://YOUR-SERVICE.onrender.com/
+   ```
 
 ---
 
-## Step 2: Configure Frontend for Production
-
-The frontend needs to know where the backend is. There are **two options** (use one):
-
-### Option A: Edit `api.js` (Simplest)
-
-Open `frontend/js/api.js` and set the `PRODUCTION_API_URL` constant (around line 22):
-
-```javascript
-const PRODUCTION_API_URL = 'https://zenalert-api.onrender.com';
-```
-
-Replace with your actual Render URL. **No trailing slash.**
-
-Commit and push. Vercel will automatically redeploy.
-
-### Option B: Inline Script Tag (No Code Changes)
-
-In each HTML file that loads `api.js` (`index.html`, `app.html`), add a `<script>` tag **before** the module script:
-
-```html
-<script>
-  window.ZENALERT_API_BASE = 'https://zenalert-api.onrender.com';
-</script>
-```
-
-This takes priority over the `PRODUCTION_API_URL` constant.
-
-### Vercel Project Settings
-
-Your existing Vercel project settings should remain unchanged:
-
-| Setting              | Value               |
-|----------------------|---------------------|
-| **Framework Preset** | Other               |
-| **Root Directory**   | `frontend`          |
-| **Build Command**    | _(leave empty)_     |
-| **Output Directory** | `.` (or `frontend`) |
-
-If your Vercel project is configured to deploy from the repository root with `frontend` as the output directory, keep that configuration. The key change is updating `PRODUCTION_API_URL` in `api.js`, then pushing to trigger a new Vercel deployment.
-
----
-
-## Step 3: Configure CORS on Render
-
-The backend must allow requests from your Vercel frontend. Set the `FRONTEND_ORIGINS` environment variable on Render.
+## Step 2: Configure Environment Variables
 
 ### In the Render Dashboard
 
 1. Go to your `zenalert-api` service → **Environment**.
 2. Add or update:
 
-| Key               | Value                                                          |
-|--------------------|----------------------------------------------------------------|
-| `FRONTEND_ORIGINS` | `https://zen-alert.vercel.app,https://yourdomain.com`         |
+| Key                | Value                                                   |
+|--------------------|---------------------------------------------------------|
+| `FRONTEND_ORIGINS` | `https://zenalert-api.onrender.com`                    |
 
-Replace with your **actual** Vercel URL and any custom domains (comma-separated, no spaces, no trailing slashes).
+Set this to your **actual Render URL** (comma-separated if you have custom domains). This controls CORS — since the frontend and backend are on the same origin, this is mainly needed if you ever access the API from another domain.
 
 3. Click **Save Changes** — Render will redeploy automatically.
 
 ### Examples
 
-Single Vercel deployment:
+Single Render deployment (same-origin, CORS not strictly needed but good practice):
 ```
-FRONTEND_ORIGINS=https://zen-alert.vercel.app
-```
-
-Vercel + custom domain:
-```
-FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://zenalert.yourdomain.com
+FRONTEND_ORIGINS=https://zenalert-api.onrender.com
 ```
 
-Vercel + preview deployments (use a pattern in your code if needed):
+Render + custom domain:
 ```
-FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://zen-alert-git-main-youruser.vercel.app
+FRONTEND_ORIGINS=https://zenalert-api.onrender.com,https://zenalert.yourdomain.com
 ```
 
 > **Note:** Local development origins (`http://localhost:8000`, `http://127.0.0.1:8000`, etc.) are always included automatically and do not need to be added to `FRONTEND_ORIGINS`.
 
 ---
 
-## Step 4: Verify the Deployment
+## Step 3: Verify the Deployment
 
 ### Backend Verification
 
@@ -210,18 +166,15 @@ FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://zen-alert-git-main-youruse
 
 ### Frontend Verification
 
-1. Open your Vercel URL.
+1. Open your Render URL (`https://YOUR-SERVICE.onrender.com/`).
 2. Open the browser developer console (F12 → Console).
 3. You should see: `[ZenAlert] API base: https://YOUR-SERVICE.onrender.com`
-4. Check the Network tab — API requests should go to your Render URL and return 200.
+4. Check the Network tab — API requests should go to the same origin and return 200.
 
 ### Checklist
 
 - [ ] Render service is **Live** and `/health` returns `{"status": "healthy"}`
-- [ ] `FRONTEND_ORIGINS` is set on Render with your Vercel URL
-- [ ] `PRODUCTION_API_URL` in `api.js` is set to your Render URL
-- [ ] Vercel has been redeployed after the `api.js` change
-- [ ] Landing page loads and shows live stats from the API
+- [ ] Landing page loads at the Render URL root (`/`)
 - [ ] Dashboard (`/app.html`) loads and shows node/incident data
 - [ ] LIVE/DEMO mode toggle works
 - [ ] Incident modal opens and actions (acknowledge, dispatch, false alarm) work
@@ -231,8 +184,8 @@ FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://zen-alert-git-main-youruse
 - [ ] English/Hindi toggle works on both landing and dashboard
 - [ ] Dark/Light theme toggle works
 - [ ] Simulation page (`/simulation.html`) loads the 3D scene and NORMAL/FIRE TEST/CLEAR work
+- [ ] MapLibre GL map renders with CARTO dark tiles on the Live Map page
 - [ ] Connection status shows "Online" when the backend is reachable
-- [ ] Offline banner appears when the backend is unreachable
 - [ ] DEMO mode continues to work when the backend is down
 
 ---
@@ -260,18 +213,86 @@ If you run the frontend separately (e.g., VS Code Live Server on port 5500), the
 
 ### Backend (Render)
 
-| Variable          | Required | Description                                                    |
-|-------------------|----------|----------------------------------------------------------------|
-| `FRONTEND_ORIGINS` | Yes      | Comma-separated list of allowed CORS origins (Vercel URLs)     |
-| `PORT`            | Auto     | Provided by Render automatically — do not set manually         |
-| `PYTHON_VERSION`  | Optional | Python version for Render (default: 3.11.9 via `render.yaml`) |
+| Variable           | Required | Description                                                       |
+|--------------------|----------|-------------------------------------------------------------------|
+| `FRONTEND_ORIGINS` | Optional | Comma-separated list of allowed CORS origins (your Render URL)    |
+| `PORT`             | Auto     | Provided by Render automatically — do not set manually            |
+| `PYTHON_VERSION`   | Optional | Python version for Render (default: 3.11.9 via `render.yaml`)    |
 
-### Frontend (Vercel / Code)
+### Frontend (Code)
 
 | Configuration           | Location                   | Description                        |
 |-------------------------|----------------------------|------------------------------------|
-| `PRODUCTION_API_URL`    | `frontend/js/api.js:22`   | Render backend URL (hardcoded)     |
+| `PRODUCTION_API_URL`    | `frontend/js/api.js:24`   | Render backend URL (hardcoded)     |
 | `window.ZENALERT_API_BASE` | HTML `<script>` tag    | Runtime override (takes priority)  |
+
+> **Note:** Since both frontend and backend are served from the same Render service, the frontend auto-detects the API base as same-origin. You usually don't need to change these unless you split the services later.
+
+---
+
+## 3D Map Setup (MapLibre GL + CARTO Tiles)
+
+The dashboard's **Live Threat Map** uses [MapLibre GL JS](https://maplibre.org/) for interactive 2.5D/3D map rendering. Here's how it works and what APIs are involved:
+
+### What We Use
+
+| Component           | Provider    | API Key Required? | Cost    |
+|---------------------|-------------|-------------------|---------|
+| **Map renderer**    | MapLibre GL JS (v3.6.2) | ❌ No       | Free / Open Source |
+| **Base map tiles**  | CARTO Dark Basemap (raster) | ❌ No  | Free (public CDN)  |
+| **3D simulation**   | Three.js (v0.128.0)   | ❌ No         | Free / Open Source |
+
+### No API Keys Required
+
+The current setup requires **zero API keys**:
+
+- **MapLibre GL JS** is an open-source map library loaded from CDN (`unpkg.com/maplibre-gl@3.6.2`).
+- **CARTO Dark tiles** are served from CARTO's public CDN (`basemaps.cartocdn.com`) with no authentication needed. These are raster tiles based on OpenStreetMap data.
+- **Three.js** is used for the sensor-node 3D simulation scene and is also loaded from CDN.
+
+### How the Map Works
+
+The map is configured in [`frontend/js/map.js`](frontend/js/map.js):
+
+```javascript
+// Tile source — free CARTO dark basemap, no API key needed
+tiles: [
+  'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+  'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+  'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+]
+```
+
+The map initializes with:
+- **Center**: Nainital/Bhowali area (`[79.5059, 29.3947]`)
+- **Pitch**: 45° (gives the 3D perspective effect)
+- **Bearing**: -10° (slight rotation)
+- **Zoom**: 12.5
+
+### Map Features
+
+- **Sensor node markers** — colored by status (critical/high/watch/normal/offline)
+- **Risk zone polygons** — semi-transparent red fill with dashed outline
+- **Popups** — click a node marker to see its ID, zone, and status
+- **Layer toggles** — show/hide nodes and zones from the dashboard UI
+- **Fly-to** — animated camera transitions to incident locations
+
+### Switching to Vector Tiles (Optional, for better 3D)
+
+If you want true 3D terrain or vector tiles with labels, you would need a tile provider with an API key:
+
+| Provider       | Free Tier              | API Key |
+|----------------|------------------------|---------|
+| **MapTiler**   | 100K tiles/month free  | Yes — get at [maptiler.com](https://www.maptiler.com/cloud/) |
+| **Stadia Maps**| 200K tiles/month free  | Yes — get at [stadiamaps.com](https://stadiamaps.com/)       |
+| **Mapbox**     | 200K tiles/month free  | Yes — get at [mapbox.com](https://www.mapbox.com/)           |
+
+To switch, update the `style` in `map.js` from inline raster config to a vector style URL:
+```javascript
+style: 'https://api.maptiler.com/maps/streets-v2-dark/style.json?key=YOUR_API_KEY'
+```
+
+For the current demo, **no changes or API keys are needed** — it works out of the box.
 
 ---
 
