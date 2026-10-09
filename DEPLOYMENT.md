@@ -13,7 +13,7 @@ Production architecture: **Render** serves both the FastAPI backend and static f
 5. [Step 3: Verify the Deployment](#step-3-verify-the-deployment)
 6. [Local Development](#local-development)
 7. [Environment Variables Reference](#environment-variables-reference)
-8. [3D Map Setup (MapLibre GL + CARTO Tiles)](#3d-map-setup-maplibre-gl--carto-tiles)
+8. [3D Map Setup (MapLibre GL + OpenFreeMap Tiles)](#3d-map-setup-maplibre-gl--openfreemap-tiles)
 9. [Storage and Persistence Limitations](#storage-and-persistence-limitations)
 10. [Future Hardware Integration Notes](#future-hardware-integration-notes)
 
@@ -184,7 +184,7 @@ FRONTEND_ORIGINS=https://zenalert-api.onrender.com,https://zenalert.yourdomain.c
 - [ ] English/Hindi toggle works on both landing and dashboard
 - [ ] Dark/Light theme toggle works
 - [ ] Simulation page (`/simulation.html`) loads the 3D scene and NORMAL/FIRE TEST/CLEAR work
-- [ ] MapLibre GL map renders with CARTO dark tiles on the Live Map page
+- [ ] MapLibre GL map renders with OpenFreeMap dark vector tiles on the Live Map page
 - [ ] Connection status shows "Online" when the backend is reachable
 - [ ] DEMO mode continues to work when the backend is down
 
@@ -230,7 +230,7 @@ If you run the frontend separately (e.g., VS Code Live Server on port 5500), the
 
 ---
 
-## 3D Map Setup (MapLibre GL + CARTO Tiles)
+## 3D Map Setup (MapLibre GL + OpenFreeMap Tiles)
 
 The dashboard's **Live Threat Map** uses [MapLibre GL JS](https://maplibre.org/) for interactive 2.5D/3D map rendering. Here's how it works and what APIs are involved:
 
@@ -239,7 +239,7 @@ The dashboard's **Live Threat Map** uses [MapLibre GL JS](https://maplibre.org/)
 | Component           | Provider    | API Key Required? | Cost    |
 |---------------------|-------------|-------------------|---------|
 | **Map renderer**    | MapLibre GL JS (v3.6.2) | ❌ No       | Free / Open Source |
-| **Base map tiles**  | CARTO Dark Basemap (raster) | ❌ No  | Free (public CDN)  |
+| **Base map tiles**  | OpenFreeMap Dark (vector) | ❌ No  | Free (public CDN)  |
 | **3D simulation**   | Three.js (v0.128.0)   | ❌ No         | Free / Open Source |
 
 ### No API Keys Required
@@ -247,7 +247,7 @@ The dashboard's **Live Threat Map** uses [MapLibre GL JS](https://maplibre.org/)
 The current setup requires **zero API keys**:
 
 - **MapLibre GL JS** is an open-source map library loaded from CDN (`unpkg.com/maplibre-gl@3.6.2`).
-- **CARTO Dark tiles** are served from CARTO's public CDN (`basemaps.cartocdn.com`) with no authentication needed. These are raster tiles based on OpenStreetMap data.
+- **OpenFreeMap Dark tiles** are served from OpenFreeMap's public CDN (`tiles.openfreemap.org`) with no authentication needed. These are vector tiles based on OpenStreetMap data.
 - **Three.js** is used for the sensor-node 3D simulation scene and is also loaded from CDN.
 
 ### How the Map Works
@@ -255,12 +255,8 @@ The current setup requires **zero API keys**:
 The map is configured in [`frontend/js/map.js`](frontend/js/map.js):
 
 ```javascript
-// Tile source — free CARTO dark basemap, no API key needed
-tiles: [
-  'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-  'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-  'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-]
+// Tile source — free OpenFreeMap dark vector tiles, no API key needed
+style: 'https://tiles.openfreemap.org/styles/dark'
 ```
 
 The map initializes with:

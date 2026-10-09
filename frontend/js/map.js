@@ -16,33 +16,13 @@ export function initMap(containerId, center = [79.5059, 29.3947], zoom = 12.5) {
 
   map = new maplibregl.Map({
     container: containerId,
-    style: {
-      version: 8,
-      sources: {
-        'osm-dark': {
-          type: 'raster',
-          tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-          ],
-          tileSize: 256,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        }
-      },
-      layers: [{
-        id: 'osm-dark',
-        type: 'raster',
-        source: 'osm-dark',
-        minzoom: 0,
-        maxzoom: 19
-      }]
-    },
+    // OpenFreeMap dark vector tiles — free, no API key, no registration
+    style: 'https://tiles.openfreemap.org/styles/dark',
     center: center,
     zoom: zoom,
     pitch: 45,
     bearing: -10,
-    attributionControl: false
+    attributionControl: true
   });
 
   map.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -70,7 +50,7 @@ export function initMap(containerId, center = [79.5059, 29.3947], zoom = 12.5) {
       source: 'zones',
       paint: {
         'fill-color': '#EF4444',
-        'fill-opacity': 0.1
+        'fill-opacity': 0.15
       }
     });
     

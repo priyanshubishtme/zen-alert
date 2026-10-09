@@ -4,7 +4,7 @@ A presentation-ready browser prototype for the ZenAlert environmental early-warn
 
 ## What is included
 
-- Live Map control-room dashboard (MapLibre GL + CARTO tiles — no API key needed)
+- Live Map control-room dashboard (MapLibre GL + OpenFreeMap vector tiles — no API key needed)
 - Simulated environmental sensor telemetry
 - Multi-modal confidence / severity display
 - Incident Center with search
@@ -67,10 +67,10 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the full deployment guide, environment va
 | Component          | Library          | API Key? |
 |--------------------|------------------|----------|
 | Live Threat Map    | MapLibre GL JS   | ❌ No    |
-| Base map tiles     | CARTO Dark (OSM) | ❌ No    |
+| Base map tiles     | OpenFreeMap Dark (Vector) | ❌ No    |
 | 3D Sensor Sim      | Three.js         | ❌ No    |
 
-The map uses free CARTO raster tiles over MapLibre GL with 45° pitch for the 3D perspective. No API keys or accounts are required. See [DEPLOYMENT.md](DEPLOYMENT.md#3d-map-setup-maplibre-gl--carto-tiles) for details on switching to vector tiles (MapTiler, Stadia, Mapbox) if needed.
+The map uses free OpenFreeMap dark vector tiles over MapLibre GL with 45° pitch for the 3D perspective. No API keys or accounts are required. See [DEPLOYMENT.md](DEPLOYMENT.md#3d-map-setup-maplibre-gl--openfreemap-tiles) for details on switching to other vector tiles (MapTiler, Stadia, Mapbox) if needed.
 
 ## Environment Setup
 
@@ -98,7 +98,7 @@ Our deployment model scales cost-effectively from a single prototype to full dis
 The visual IA follows the PRD's specified dashboard pages and core features:
 Live Map, Incident Center, Incident Detail, Sensors & Air Quality, Device Health, Alerts, Analytics, Admin, Public Alert View, and the Deployment Strategy page.
 
-The map uses MapLibre GL JS with CARTO dark raster tiles; it can later be swapped for vector tiles with a provider API key, while keeping the same UI shell.
+The map uses MapLibre GL JS with OpenFreeMap dark vector tiles; it can later be swapped for other vector tiles with a provider API key, while keeping the same UI shell.
 
 ## Backend integration points
 
