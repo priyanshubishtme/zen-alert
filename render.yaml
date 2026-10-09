@@ -17,6 +17,6 @@ services:
       - key: FRONTEND_ORIGINS
         # Set this to your Render URL and any custom domains (comma-separated).
         # Example: https://zenalert-api.onrender.com,https://zenalert.yourdomain.com
-        value: ""
+        value: "https://zen-alert.onrender.com,https://zenalert.tech,https://www.zenalert.tech"
       - key: PYTHON_VERSION
         value: "3.11.9"
