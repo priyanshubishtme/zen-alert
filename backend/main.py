@@ -1,11 +1,14 @@
 """
 main.py — FastAPI backend for ZenAlert demo.
 Serves static frontend files and provides simulated JSON/SSE endpoints.
-Run: uvicorn main:app --reload
+
+Local dev:  uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+Production: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
 """
 
 import asyncio
 import json
+import os
 import random
 from datetime import datetime
 from pathlib import Path
@@ -14,35 +17,72 @@ from queue import Queue
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from sse_starlette.sse import EventSourceResponse
 
-from data import sim, gateway_snapshot
+# ── Import data module (works from both repo root and backend/) ──
+try:
+    from backend.data import sim, gateway_snapshot
+except ImportError:
+    from data import sim, gateway_snapshot
 
+# ── Application ──────────────────────────────────────────────────
 app = FastAPI(title="ZenAlert API", version="1.0.0")
+
+# ── CORS ─────────────────────────────────────────────────────────
+# In production, set the FRONTEND_ORIGINS environment variable to a
+# comma-separated list of allowed origins.
+# Example: FRONTEND_ORIGINS=https://zen-alert.vercel.app,https://yourdomain.com
+_default_origins = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8765",
+    "http://127.0.0.1:8765",
+    "http://localhost:8770",
+    "http://127.0.0.1:8770",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+_env_origins = os.environ.get("FRONTEND_ORIGINS", "")
+_extra_origins = [o.strip() for o in _env_origins.split(",") if o.strip()] if _env_origins else []
+
+_allowed_origins = _extra_origins + _default_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8765",
-        "http://127.0.0.1:8765",
-        "http://localhost:8770",
-        "http://127.0.0.1:8770",
-    ],
+    allow_origins=_allowed_origins,
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept"],
 )
 
-# ── Static files ──────────────────────────────────────────────
+# ── Health endpoint ──────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    """Health check for Render or any monitoring service."""
+    return JSONResponse({
+        "status": "healthy",
+        "service": "zenalert-api",
+        "version": "1.0.0",
+    })
+
+# ── Static files (for local development) ─────────────────────────
+# When deployed on Render the frontend is served by Vercel.
+# These mounts remain so local `uvicorn backend.main:app` still works.
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
-# Mount assets
-if (FRONTEND_DIR / "assets").exists():
-    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="assets")
-app.mount("/css", StaticFiles(directory=str(FRONTEND_DIR / "css")), name="css")
-app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
+if FRONTEND_DIR.exists():
+    if (FRONTEND_DIR / "assets").exists():
+        app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="assets")
+    if (FRONTEND_DIR / "css").exists():
+        app.mount("/css", StaticFiles(directory=str(FRONTEND_DIR / "css")), name="css")
+    if (FRONTEND_DIR / "js").exists():
+        app.mount("/js", StaticFiles(directory=str(FRONTEND_DIR / "js")), name="js")
 
-# ── HTML pages ────────────────────────────────────────────────
+# ── HTML pages (local dev only) ──────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 async def index():
     return FileResponse(str(FRONTEND_DIR / "index.html"))

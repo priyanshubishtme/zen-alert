@@ -1,13 +1,65 @@
 /**
  * api.js — API client with fallback to embedded mock data
- * Talks to the FastAPI backend or falls back gracefully.
+ *
+ * Configuration:
+ *   Production (Vercel):  Set window.ZENALERT_API_BASE in a <script> tag
+ *                         before this module loads, OR edit the PRODUCTION_API_URL
+ *                         constant below after creating your Render service.
+ *   Local development:    Automatically uses http://127.0.0.1:8000 when served
+ *                         from dev-server ports, or the same origin when served
+ *                         by the FastAPI backend directly.
  */
 
-const API_BASE = window.ZENALERT_API_BASE
-  || (['8765', '8770'].includes(window.location.port) ? 'http://127.0.0.1:8000' : window.location.origin);
+// ── API Base URL Resolution ─────────────────────────────────────
+//
+// Priority order:
+// 1. window.ZENALERT_API_BASE  — set by inline <script> in HTML (recommended for Vercel)
+// 2. PRODUCTION_API_URL        — hardcoded fallback for production
+// 3. Local dev fallback        — auto-detected from port number
+// 4. Same-origin fallback      — when served by the FastAPI backend
+//
+// IMPORTANT: After creating your Render service, replace the empty string
+// below with your Render URL, e.g. 'https://zenalert-api.onrender.com'
+// This acts as the fallback when window.ZENALERT_API_BASE is not set.
+const PRODUCTION_API_URL = '';
+
+function resolveApiBase() {
+  // 1. Explicit override via global variable (set in HTML or by Vercel config)
+  if (window.ZENALERT_API_BASE) {
+    return window.ZENALERT_API_BASE.replace(/\/+$/, '');
+  }
+
+  // 2. Detect local development environments
+  const port = window.location.port;
+  const hostname = window.location.hostname;
+  const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  const devPorts = ['5500', '5501', '3000', '8765', '8770'];
+
+  if (isLocalDev && devPorts.includes(port)) {
+    return 'http://127.0.0.1:8000';
+  }
+
+  // 3. If we're on the same origin as FastAPI (local dev via port 8000)
+  if (isLocalDev && port === '8000') {
+    return window.location.origin;
+  }
+
+  // 4. Production: use the configured Render URL
+  if (PRODUCTION_API_URL) {
+    return PRODUCTION_API_URL;
+  }
+
+  // 5. Fallback: assume same-origin (works when FastAPI serves frontend)
+  return window.location.origin;
+}
+
+const API_BASE = resolveApiBase();
 let _online = true;
 let _eventSource = null;
 const _listeners = new Map(); // event type → Set<callback>
+
+// Expose the resolved API base for debugging
+console.info(`[ZenAlert] API base: ${API_BASE}`);
 
 /**
  * Generic fetch wrapper with fallback.
@@ -142,7 +194,7 @@ export function isOnline() { return _online; }
 
 export async function checkHealth() {
   try {
-    const res = await fetch(`${API_BASE}/api/overview`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/health`, { cache: 'no-store' });
     _online = res.ok;
     return _online;
   } catch {

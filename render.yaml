@@ -1,0 +1,21 @@
+# render.yaml — Render Blueprint for ZenAlert API
+# https://render.com/docs/blueprint-spec
+#
+# Use: Connect this repo to Render and it will auto-detect this file.
+
+services:
+  - type: web
+    name: zenalert-api
+    runtime: python
+    region: oregon  # Change to your preferred region
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: FRONTEND_ORIGINS
+        # After deploying, set this to your Vercel frontend URL(s).
+        # Example: https://zen-alert.vercel.app,https://yourdomain.com
+        value: ""
+      - key: PYTHON_VERSION
+        value: "3.11.9"
