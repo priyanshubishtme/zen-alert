@@ -2,7 +2,6 @@
 
 A presentation-ready browser prototype for the ZenAlert environmental early-warning platform, with a FastAPI service, responsive dashboard, and focused sensor-node simulation.
 
-![ZenAlert PCB Layout](pcb/kicad_pcb_layout.png)
 
 ## Hardware & PCB Design
 
