@@ -1,22 +1,22 @@
 Part,Qty,Unit,Total,Vendor
-ESP32-S3-CAM N16R8 development board with OV3660 camera,1,12.14,12.14,Techtonics — https://techtonics.in/product/esp32-s3-cam-development-board-n16r8-with-ov3660-camera/
-"IP65 transparent-top weatherproof enclosure, 75 x 50 x 30 mm",1,2.06,2.06,ProBots — https://probots.co.in/ip65-waterproof-electronic-transparent-enclosure.html
-DHT22 / AM2302 temperature and humidity sensor module,1,1.34,1.34,KSP Electronics — https://kspelectronics.in/product/dht22-digital-temperature-and-humidity-sensor-module/
-MQ-2 gas and smoke sensor module,1,0.85,0.85,KTRON — https://www.ktron.in/product/mq2-smoke-and-gas-detector-module/
-MQ-135 air-quality / gas sensor module,1,1.16,1.16,ElectronicsComp — https://www.electronicscomp.com/mq135-air-quality-gas-sensor-module-india
-"0.96-inch SSD1306 OLED display, 128 x 64, I2C",1,1.33,1.33,CircuitKar — https://www.circuitkar.in/products/oled-096-i2c
-NEO-6M GPS module with antenna,1,2.13,2.13,Robu.in — https://robu.in/product-category/gps-module/
-"SX1278 RA-02 LoRa transceiver module, 433 MHz",1,3.00,3.00,eBhoot — https://ebhoot.com/products/sx1278-lora-module-ra-02-433mhz-wireless-spread-spectrum-transmission
-3.7 V 2600 mAh 18650 Li-ion battery cell,1,1.24,1.24,Price estimate; supplier to confirm — https://www.google.com/search?q=3.7V+2600mAh+18650+Li-ion+rechargeable+battery+India
-Single-cell 18650 battery holder,1,0.21,0.21,Price estimate; supplier to confirm — https://www.google.com/search?q=single+18650+battery+holder+India
-"6 V mini solar panel, 100 mA",1,0.56,0.56,RoboBazar — https://robobazar.in/product/solar-for-diy-square-shape-mini-solar-panel-6v-100-ma-70-x-70-x-03-mm/
-CN3065 solar Li-ion charging module (or equivalent),1,0.72,0.72,Price estimate; supplier to confirm — https://www.google.com/search?q=CN3065+solar+Li-ion+charging+module+India
-5 V boost converter module for battery supply,1,0.36,0.36,Price estimate; supplier to confirm — https://www.google.com/search?q=5V+boost+converter+module+MT3608+India
-General-purpose prototype PCB / stripboard,1,0.30,0.30,Electronic Spices — https://electronicspices.com/product/10cm-x-7-5cm-multi-purpose-single-side-prototyping-printed-circuit-pcb-board
-"2.54 mm headers, jumper wires and screw-terminal connectors (small lot)",1,0.46,0.46,Hubtronics — https://hubtronics.in/pin-header-connectors
-"LED and 220-ohm resistor pack (green, yellow, red)",1,0.96,0.96,Tecnomate — https://www.tecnomate.in/component-library/5mm-led-220-ohm-resistor-pack
-"Resistor assortment for DHT22 pull-up and ADC dividers (10 kΩ, 15 kΩ and related values)",1,0.26,0.26,ElectronicsComp — https://www.electronicscomp.com/10k-ohm-resistance
-10 kΩ rotary potentiometer for analog test input,2,0.105,0.21,Price estimate; supplier to confirm — https://www.google.com/search?q=10k+ohm+rotary+potentiometer+India
-3.3–5 V active buzzer module,1,0.26,0.26,ElectroPi — https://www.electropi.in/active-buzzer-module-5v-india
-"Decoupling capacitors (100 nF and 10 µF, small set)",1,0.15,0.15,Price estimate; supplier to confirm — https://www.google.com/search?q=100nF+10uF+capacitors+electronics+India
-433 MHz spring antenna for RA-02 LoRa module,1,0.26,0.26,Price estimate; supplier to confirm — https://www.google.com/search?q=433MHz+spring+antenna+LoRa+RA-02+India
+ESP32-S3-CAM N16R8 development board with OV3660 camera,1,$12.14,$12.14,Techtonics — https://techtonics.in/product/esp32-s3-cam-development-board-n16r8-with-ov3660-camera/
+"IP65 transparent-top weatherproof enclosure, 75 x 50 x 30 mm",1,$2.06,$2.06,ProBots — https://probots.co.in/ip65-waterproof-electronic-transparent-enclosure.html
+DHT22 / AM2302 temperature and humidity sensor module,1,$1.34,$1.34,KSP Electronics — https://kspelectronics.in/product/dht22-digital-temperature-and-humidity-sensor-module/
+MQ-2 gas and smoke sensor module,1,$0.85,$0.85,KTRON — https://www.ktron.in/product/mq2-smoke-and-gas-detector-module/
+MQ-135 air-quality / gas sensor module,1,$1.16,$1.16,ElectronicsComp — https://www.electronicscomp.com/mq135-air-quality-gas-sensor-module-india
+"0.96-inch SSD1306 OLED display, 128 x 64, I2C",1,$1.33,$1.33,CircuitKar — https://www.circuitkar.in/products/oled-096-i2c
+NEO-6M GPS module with antenna,1,$2.13,$2.13,Robu.in — https://robu.in/product-category/gps-module/
+"SX1278 RA-02 LoRa transceiver module, 433 MHz",1,$3.00,$3.00,eBhoot — https://ebhoot.com/products/sx1278-lora-module-ra-02-433mhz-wireless-spread-spectrum-transmission
+3.7 V 2600 mAh 18650 Li-ion battery cell,1,$1.24,$1.24,Price estimate; supplier to confirm — https://www.google.com/search?q=3.7V+2600mAh+18650+Li-ion+rechargeable+battery+India
+Single-cell 18650 battery holder,1,$0.21,$0.21,Price estimate; supplier to confirm — https://www.google.com/search?q=single+18650+battery+holder+India
+"6 V mini solar panel, 100 mA",1,$0.56,$0.56,RoboBazar — https://robobazar.in/product/solar-for-diy-square-shape-mini-solar-panel-6v-100-ma-70-x-70-x-03-mm/
+CN3065 solar Li-ion charging module (or equivalent),1,$0.72,$0.72,Price estimate; supplier to confirm — https://www.google.com/search?q=CN3065+solar+Li-ion+charging+module+India
+5 V boost converter module for battery supply,1,$0.36,$0.36,Price estimate; supplier to confirm — https://www.google.com/search?q=5V+boost+converter+module+MT3608+India
+General-purpose prototype PCB / stripboard,1,$0.30,$0.30,Electronic Spices — https://electronicspices.com/product/10cm-x-7-5cm-multi-purpose-single-side-prototyping-printed-circuit-pcb-board
+"2.54 mm headers, jumper wires and screw-terminal connectors (small lot)",1,$0.46,$0.46,Hubtronics — https://hubtronics.in/pin-header-connectors
+"LED and 220-ohm resistor pack (green, yellow, red)",1,$0.96,$0.96,Tecnomate — https://www.tecnomate.in/component-library/5mm-led-220-ohm-resistor-pack
+"Resistor assortment for DHT22 pull-up and ADC dividers (10 kΩ, 15 kΩ and related values)",1,$0.26,$0.26,ElectronicsComp — https://www.electronicscomp.com/10k-ohm-resistance
+10 kΩ rotary potentiometer for analog test input,2,$0.105,$0.21,Price estimate; supplier to confirm — https://www.google.com/search?q=10k+ohm+rotary+potentiometer+India
+3.3–5 V active buzzer module,1,$0.26,$0.26,ElectroPi — https://www.electropi.in/active-buzzer-module-5v-india
+"Decoupling capacitors (100 nF and 10 µF, small set)",1,$0.15,$0.15,Price estimate; supplier to confirm — https://www.google.com/search?q=100nF+10uF+capacitors+electronics+India
+433 MHz spring antenna for RA-02 LoRa module,1,$0.26,$0.26,Price estimate; supplier to confirm — https://www.google.com/search?q=433MHz+spring+antenna+LoRa+RA-02+India
