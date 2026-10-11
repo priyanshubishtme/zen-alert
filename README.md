@@ -2,7 +2,39 @@
 
 A presentation-ready browser prototype for the ZenAlert environmental early-warning platform, with a FastAPI service, responsive dashboard, and focused sensor-node simulation.
 
-## What is included
+![ZenAlert PCB Layout](pcb/kicad_pcb_layout.png)
+
+## Hardware & PCB Design
+
+ZenAlert features a custom 2-layer PCB designed in KiCad for an autonomous environmental safety and early-warning node powered by an ESP32-S2 microcontroller.
+
+| PCB Layout (Top & Bottom Layers) | Schematic Design |
+|---|---|
+| ![PCB Layout](pcb/kicad_pcb_layout.png) | ![Schematic Design](pcb/kicad_schematic.png) |
+
+| Layer Routing Detail | Hardware Wiring & Simulation |
+|---|---|
+| ![PCB Routing Layers](pcb/pcb_layers_routing.png) | ![Hardware Wiring Diagram](pcb/wiring_diagram.png) |
+
+### PCB Specifications & Features
+- **Microcontroller**: ESP32-S2 Mini
+- **Board Dimensions**: 65 mm × 55 mm (2-layer FR4, 1.6 mm thickness)
+- **Sensors Integrated**:
+  - `MQ-135` Air Quality / Toxic Gas Sensor (GPIO1)
+  - `MQ-2` Smoke & Combustible Gas Sensor (GPIO2)
+  - `DHT22` Digital Temperature & Humidity Sensor (GPIO4 with 10kΩ pull-up)
+- **Local Telemetry & Actuation**:
+  - `SSD1306` 0.96" OLED Display (I2C: SDA GPIO8, SCL GPIO9)
+  - Tri-color status indicators: Green (Safe, GPIO15), Yellow (Warning, GPIO16), Red (Critical, GPIO17)
+  - High-decibel Active Alarm Buzzer (GPIO18)
+  - Expansion Header for external I2C environmental modules
+- **PCB Design & Fabrication Files**:
+  - KiCad Schematic: [`pcb/zenalert_node.kicad_sch`](pcb/zenalert_node.kicad_sch)
+  - KiCad PCB Layout: [`pcb/zenalert_node.kicad_pcb`](pcb/zenalert_node.kicad_pcb)
+  - KiCad Project: [`pcb/zenalert_node.kicad_pro`](pcb/zenalert_node.kicad_pro)
+  - Production Gerber Files: [`pcb/gerbers.zip`](pcb/gerbers.zip)
+  - Bill of Materials: [`bom.csv`](bom.csv)
+
 
 - Live Map control-room dashboard (MapLibre GL + OpenFreeMap vector tiles — no API key needed)
 - Simulated environmental sensor telemetry
